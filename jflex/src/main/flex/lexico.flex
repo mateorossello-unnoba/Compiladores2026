@@ -72,14 +72,15 @@ Flotante = {Entero}"."{Entero} | "."{Entero} | {Entero}"."
   "int"         { return token("INT", yytext()); }
   "float"       { return token("FLOAT", yytext()); }
   "void"        { return token("VOID", yytext()); }
+  "moda"        { return token("MODA", yytext()); }
 
   /* Literales */
-  {Booleano}         { return token("BOOLEANO", yytext()); }
+  {Booleano}        { return token("BOOLEANO", yytext()); }
   {Flotante}        { return token("FLOTANTE", yytext()); }
   {Entero}          { return token("ENTERO", yytext()); }
   {Identificador}   { return token("IDENTIFICADOR", yytext()); }
 
-  /* Operadores aritmeticos*/
+  /* Operadores aritméticos */
   "+"   { return token("SUMA", yytext()); }
   "-"   { return token("RESTA", yytext()); }
   "*"   { return token("MULTIPLICACION", yytext()); }
@@ -97,7 +98,7 @@ Flotante = {Entero}"."{Entero} | "."{Entero} | {Entero}"."
   "<"   { return token("MENOR", yytext()); }
   "!"   { return token("NEGACION", yytext()); }
 
-  /* Signos de puntuacion */
+  /* Signos de puntuación */
   "("   { return token("PARENTESIS_IZQ", yytext()); }
   ")"   { return token("PARENTESIS_DER", yytext()); }
   "{"   { return token("LLAVE_IZQ", yytext()); }
@@ -121,18 +122,18 @@ Flotante = {Entero}"."{Entero} | "."{Entero} | {Entero}"."
 <CADENA> {
   \"    { yybegin(YYINITIAL);
           return token("CADENA",
-                       cadena_linea, cadena_columna,
-                       cadena.toString());
+          cadena_linea, cadena_columna,
+          cadena.toString());
         }
 
-  "\\n"   { cadena.append('\n'); }
-  "\\t"   { cadena.append('\t'); }
-  "\\\""  { cadena.append('\"'); }
-  "\\\\"  { cadena.append('\\'); }
+  "\\n"     { cadena.append('\n'); }
+  "\\t"     { cadena.append('\t'); }
+  "\\\""    { cadena.append('\"'); }
+  "\\\\"    { cadena.append('\\'); }
 
   /* Fin del archivo */
-  <<EOF>> { throw new Error("Fin del archivo dentro de la cadena: \n" + cadena.toString()); }
+  <<EOF>>   { throw new Error("Fin del archivo dentro de la cadena: \n" + cadena.toString()); }
 
   /* Cualquier otro caracter */
-  [^]     { cadena.append(yytext()); }
+  [^]   { cadena.append(yytext()); }
 }
