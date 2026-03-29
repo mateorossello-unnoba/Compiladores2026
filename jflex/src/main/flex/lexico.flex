@@ -31,11 +31,12 @@ package unnoba;
     }
 %}
 
-Terminacion = \r | \n | \r\n
+Terminacion = \r\n | \n | \r
 Espacio = [ ] | \t | \f
 Blanco = {Terminacion} | {Espacio}
 
 ComentarioLinea = "%"[^\r\n]*{Terminacion}?
+ComentarioLineaBarra = "//"[^\r\n]*{Terminacion}?
 
 Identificador = \p{L}(\p{L} | [0-9] | "_")*
 
@@ -43,6 +44,8 @@ Digitos = [0-9]+
 Booleano = "true" | "false"
 Entero = 0 | [1-9][0-9]*
 Flotante = {Entero}"."{Digitos}? | "."{Digitos}
+Numero = -?({Flotante}|{Entero})
+ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
 
 %state CADENA
 %state COMENTARIO_MULTILINEA
@@ -53,6 +56,7 @@ Flotante = {Entero}"."{Digitos}? | "."{Digitos}
   /* Blancos y Comentarios */
   {Blanco}                  { /* Ignorar */ }
   {ComentarioLinea}         { /* Ignorar */ }
+  {ComentarioLineaBarra}    { /* Ignorar */ }
 
   /* Palabras reservadas */
   "PROGRAM"     { return token("PROGRAM", yytext()); }
@@ -73,11 +77,13 @@ Flotante = {Entero}"."{Digitos}? | "."{Digitos}
   "READ_BOOL"   { return token("READ_BOOL", yytext()); }
   "moda"        { return token("MODA", yytext()); }
 
+
   /* Literales */
-  {Booleano}        { return token("BOOLEANO", yytext()); }
-  {Flotante}        { return token("FLOTANTE", yytext()); }
-  {Entero}          { return token("ENTERO", yytext()); }
-  {Identificador}   { return token("IDENTIFICADOR", yytext()); }
+  {Booleano}         { return token("BOOLEANO", yytext()); }
+  {ConstanteArreglo} { return token("CONSTANTE_ARREGLO", yytext()); }
+  {Flotante}         { return token("FLOTANTE", yytext()); }
+  {Entero}           { return token("ENTERO", yytext()); }
+  {Identificador}    { return token("IDENTIFICADOR", yytext()); }
 
   /* Operadores aritméticos */
   "+"   { return token("SUMA", yytext()); }
@@ -102,10 +108,12 @@ Flotante = {Entero}"."{Digitos}? | "."{Digitos}
   ")"   { return token("PARENTESIS_DER", yytext()); }
   "["   { return token("CORCHETE_IZQ", yytext()); }
   "]"   { return token("CORCHETE_DER", yytext()); }
+  "{"   { return token("LLAVE_IZQ", yytext()); }
+  "}"   { return token("LLAVE_DER", yytext()); }
   ","   { return token("COMA", yytext()); }
   "."   { return token("PUNTO", yytext()); }
   ":"   { return token("DOS_PUNTOS", yytext()); }
-  
+
   /* Cadenas de caracteres */
   \"    { cadena.setLength(0);
           cadena_linea   = this.yyline;
@@ -117,7 +125,8 @@ Flotante = {Entero}"."{Digitos}? | "."{Digitos}
   "{*"  { yybegin(COMENTARIO_MULTILINEA); }
 
   /* Cualquier regla no definida */
-  [^]   { throw new Error("Carácter inválido <" + yytext() + ">"); }
+  [^]   { throw new Error("Carácter inválido <" + yytext() + ">");
+        }
 }
 
 <CADENA> {
@@ -147,4 +156,5 @@ Flotante = {Entero}"."{Digitos}? | "."{Digitos}
 
   /* Cualquier otro caracter */
   [^]       { /* Ignorar */ }
+
 }
