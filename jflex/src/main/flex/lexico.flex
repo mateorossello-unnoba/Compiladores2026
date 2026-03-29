@@ -36,16 +36,16 @@ Espacio = [ ] | \t | \f
 Blanco = {Terminacion} | {Espacio}
 
 ComentarioLinea = "%"[^\r\n]*{Terminacion}?
-ComentarioLineaBarra = "//"[^\r\n]*{Terminacion}?
-ComentarioMultilinea = "{*"~"*}"
 
 Identificador = \p{L}(\p{L} | [0-9] | "_")*
 
+Digitos = [0-9]+
 Booleano = "true" | "false"
 Entero = 0 | [1-9][0-9]*
-Flotante = {Entero}"."{Entero} | "."{Entero} | {Entero}"."
+Flotante = {Entero}"."{Digitos}? | "."{Digitos}
 
 %state CADENA
+%state COMENTARIO_MULTILINEA
 
 %%
 
@@ -53,25 +53,24 @@ Flotante = {Entero}"."{Entero} | "."{Entero} | {Entero}"."
   /* Blancos y Comentarios */
   {Blanco}                  { /* Ignorar */ }
   {ComentarioLinea}         { /* Ignorar */ }
-  {ComentarioLineaBarra}    { /* Ignorar */ }
-  {ComentarioMultilinea}    { /* Ignorar */ }
 
   /* Palabras reservadas */
-  "fin"         { return token("FIN", yytext()); }
-  "while"       { return token("WHILE", yytext()); }
-  "continue"    { return token("CONTINUE", yytext()); }
-  "break"       { return token("BREAK", yytext()); }
-  "abstract"    { return token("ABSTRACT", yytext()); }
-  "boolean"     { return token("BOOLEAN", yytext()); }
-  "if"          { return token("IF", yytext()); }
-  "for"         { return token("FOR", yytext()); }
-  "else"        { return token("ELSE", yytext()); }
-  "private"     { return token("PRIVATE", yytext()); }
-  "public"      { return token("PUBLIC", yytext()); }
-  "return"      { return token("RETURN", yytext()); }
-  "int"         { return token("INT", yytext()); }
-  "float"       { return token("FLOAT", yytext()); }
-  "void"        { return token("VOID", yytext()); }
+  "PROGRAM"     { return token("PROGRAM", yytext()); }
+  "WHILE"       { return token("WHILE", yytext()); }
+  "ALT_WHILE"   { return token("ALT_WHILE", yytext()); }
+  "CONTINUE"    { return token("CONTINUE", yytext()); }
+  "BREAK"       { return token("BREAK", yytext()); }
+  "IF"          { return token("IF", yytext()); }
+  "ELIF"        { return token("ELIF", yytext()); }
+  "ELSE"        { return token("ELSE", yytext()); }
+  "BOOLEAN"     { return token("BOOLEAN", yytext()); }
+  "INTEGER"     { return token("INTEGER", yytext()); }
+  "FLOAT"       { return token("FLOAT", yytext()); }
+  "ARRAY"       { return token("ARRAY", yytext()); }
+  "PRINT"       { return token("PRINT", yytext()); }
+  "READ_INT"    { return token("READ_INT", yytext()); }
+  "READ_FLOAT"  { return token("READ_FLOAT", yytext()); }
+  "READ_BOOL"   { return token("READ_BOOL", yytext()); }
   "moda"        { return token("MODA", yytext()); }
 
   /* Literales */
@@ -101,30 +100,32 @@ Flotante = {Entero}"."{Entero} | "."{Entero} | {Entero}"."
   /* Signos de puntuación */
   "("   { return token("PARENTESIS_IZQ", yytext()); }
   ")"   { return token("PARENTESIS_DER", yytext()); }
-  "{"   { return token("LLAVE_IZQ", yytext()); }
-  "}"   { return token("LLAVE_DER", yytext()); }
   "["   { return token("CORCHETE_IZQ", yytext()); }
   "]"   { return token("CORCHETE_DER", yytext()); }
-  ";"   { return token("PUNTO_Y_COMA", yytext()); }
   ","   { return token("COMA", yytext()); }
   "."   { return token("PUNTO", yytext()); }
-
+  ":"   { return token("DOS_PUNTOS", yytext()); }
+  
+  /* Cadenas de caracteres */
   \"    { cadena.setLength(0);
           cadena_linea   = this.yyline;
           cadena_columna = this.yycolumn;
           yybegin(CADENA);
         }
 
+  /* Comentario multilínea */
+  "{*"  { yybegin(COMENTARIO_MULTILINEA); }
+
   /* Cualquier regla no definida */
   [^]   { throw new Error("Carácter inválido <" + yytext() + ">"); }
 }
 
 <CADENA> {
-  \"    { yybegin(YYINITIAL);
-          return token("CADENA",
-          cadena_linea, cadena_columna,
-          cadena.toString());
-        }
+  \"        { yybegin(YYINITIAL);
+                return token("CADENA",
+                cadena_linea, cadena_columna,
+                cadena.toString());
+            }
 
   "\\n"     { cadena.append('\n'); }
   "\\t"     { cadena.append('\t'); }
@@ -135,5 +136,15 @@ Flotante = {Entero}"."{Entero} | "."{Entero} | {Entero}"."
   <<EOF>>   { throw new Error("Fin del archivo dentro de la cadena: \n" + cadena.toString()); }
 
   /* Cualquier otro caracter */
-  [^]   { cadena.append(yytext()); }
+  [^]       { cadena.append(yytext()); }
+}
+
+<COMENTARIO_MULTILINEA> {
+  "*}"      { yybegin(YYINITIAL); }
+
+  /* Fin del archivo */
+  <<EOF>>   { throw new Error("Fin del archivo dentro del comentario multilínea"); }
+
+  /* Cualquier otro caracter */
+  [^]       { /* Ignorar */ }
 }
