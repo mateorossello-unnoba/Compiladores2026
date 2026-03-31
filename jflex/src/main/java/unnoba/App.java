@@ -52,8 +52,7 @@ public class App {
             System.out.println("Análisis léxico terminado.");
         } catch (Exception exception) {
             System.out.println("Error: " + exception.getMessage());
-        }
-        finally {
+        } finally {
             teclado.close();
         }
     }

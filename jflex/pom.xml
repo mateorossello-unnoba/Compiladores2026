@@ -17,19 +17,21 @@
 
   <build>
     <plugins>
-    <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.1.1</version>
-        <configuration>
-            <mainClass>unnoba.App</mainClass>
-        </configuration>
-    </plugin>
+      <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>3.1.1</version>
+          
+          <configuration>
+              <mainClass>unnoba.App</mainClass>
+          </configuration>
+      </plugin>
 
       <plugin>
         <groupId>de.jflex</groupId>
         <artifactId>jflex-maven-plugin</artifactId>
         <version>1.9.0</version>
+
         <executions>
           <execution>
             <goals>
@@ -37,6 +39,7 @@
             </goals>
           </execution>
         </executions>
+
         <configuration>
           <lexDefinitions>
             <lexDefinition>src/main/flex/lexico.flex</lexDefinition>

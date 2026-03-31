@@ -6,7 +6,6 @@ package unnoba;
  */
 
 public class Token {
-
     public final String nombre;
     public final int linea;
     public final int columna;
@@ -28,11 +27,11 @@ public class Token {
     @Override
     public String toString() {
         String pos = "@ (L: " + linea + ", C: " + columna + ")";
+        
         if (valor == null) {
             return "[" + nombre + "]" + pos;
-        }
-        else {
-            return "[" + nombre + "] -> (" + valor + ")" + pos;
+        } else {
+            return "[" + nombre + "] -> " + valor + " " + pos;
         }
     }
 }

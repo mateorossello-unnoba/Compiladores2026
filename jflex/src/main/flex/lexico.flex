@@ -22,8 +22,8 @@ package unnoba;
     // Estructuras para manejar indentación
     private java.util.Stack<Integer> pilaIndentacion = new java.util.Stack<>();
     private java.util.Queue<Token> pendingTokens = new java.util.LinkedList<>();
-    private boolean primeraLinea = true;     // true antes de la primera línea con código
-    private boolean eofProcesado = false;    // evita procesar EOF más de una vez
+    private boolean primeraLinea = true;    // True antes de la primera línea con código
+    private boolean eofProcesado = false;   // Evita procesar EOF más de una vez
 
     // Métodos auxiliares para crear tokens con línea/columna actual
     private Token token(String nombre) {
@@ -38,8 +38,8 @@ package unnoba;
         return new Token(nombre, linea + 1, columna + 1, valor);
     }
 
-    // Método público que el parser llama para obtener el siguiente token.
-    // Implementa la cola de tokens pendientes y cierra bloques al final del archivo.
+    // Método público que el parser llama para obtener el siguiente token
+    // Implementa la cola de tokens pendientes y cierra bloques al final del archivo
     public Token next_token() throws java.io.IOException {
         // Si hay tokens encolados, entregamos el primero
         if (!pendingTokens.isEmpty()) {
@@ -47,7 +47,7 @@ package unnoba;
         }
         // Pedimos el siguiente token al escáner (yylex)
         Token token = yylex();
-        // Si ya no hay más tokens (EOF) y aún no procesamos el cierre de bloques...
+        // Si ya no hay más tokens (EOF) y aún no se procesó el cierre de bloques
         if (token == null && !eofProcesado) {
             eofProcesado = true;
             // Primero emitimos un NEWLINE para cerrar la última sentencia
@@ -59,7 +59,7 @@ package unnoba;
                 pilaIndentacion.pop();
                 pendingTokens.add(token("DEDENT"));
             }
-            // Si después de encolar hay algo, lo entregamos
+            // Si después de encolar hay algo, se entrega
             if (!pendingTokens.isEmpty()) {
                 return pendingTokens.poll();
             }
@@ -77,30 +77,23 @@ package unnoba;
 // ------------------------------------------------------------------
 //  Definición de macros (expresiones regulares reutilizables)
 // ------------------------------------------------------------------
-
 Terminacion = \r\n | \n | \r
 Espacio = [ ] | \t | \f
 Blanco = {Terminacion} | {Espacio}
 
-// Comentarios de una línea: con % o con //
+// Comentarios de una línea con %
 ComentarioLinea = "%"[^\r\n]*{Terminacion}?
-ComentarioLineaBarra = "//"[^\r\n]*{Terminacion}?
 
 // Identificadores: comienzan con letra (incluye Unicode) y pueden contener letras, dígitos o _
 Identificador = \p{L}(\p{L} | [0-9] | "_")*
 
 // Definiciones numéricas
 Digito = [0-9]
-EnteroSinCero = [1-9]{Digito}* | 0          // Enteros sin ceros a la izquierda
-Entero = {Digito}+                           // Entero genérico (para constantes de arreglo)
-Flotante = {Entero}"."{Digito}* | "."{Digito}+ | {Entero}"."   // Ej: 12.34, .123, 123.
-Numero = -?({Flotante}|{Entero})             // Números con signo opcional (para arreglos)
+Entero = [1-9]{Digito}* | 0                     // Enteros sin ceros a la izquierda
+Flotante = {Digito}+"."{Digito}* | "."{Digito}+ // Ej: 12.34, .123, 123.
 
 // Constantes booleanas
 Booleano = "true" | "false"
-
-// Constante de arreglo: [ num, num, ... ]
-ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
 
 // ------------------------------------------------------------------
 //  Declaración de estados léxicos
@@ -124,7 +117,6 @@ ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
 
     // Comentario de línea: pasamos al estado COMENTARIO_LINEA
     "%"     { yybegin(COMENTARIO_LINEA); }
-    "//"    { yybegin(COMENTARIO_LINEA); }
 
     // Comentario multilínea: pasamos al estado correspondiente
     "{*"    { yybegin(COMENTARIO_MULTILINEA); }
@@ -133,7 +125,7 @@ ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
     [^]     {
                 // La columna actual (yycolumn) es el nivel de indentación
                 int nivel = this.yycolumn;
-                int tope = pilaIndentacion.peek();   // nivel del bloque actual
+                int tope = pilaIndentacion.peek();  // Nivel del bloque actual
 
                 // Lista para almacenar los tokens que se generarán por este cambio de indentación
                 java.util.List<Token> tokens = new java.util.ArrayList<>();
@@ -161,8 +153,7 @@ ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
                     }
                     // Verificar consistencia: el nuevo tope debe ser exactamente el nivel medido
                     if (pilaIndentacion.peek() != nivel) {
-                        throw new Error("Indentación inconsistente: nivel " + nivel +
-                                        " no coincide con ningún bloque abierto");
+                        throw new Error("Indentación inconsistente: nivel " + nivel + " no coincide con ningún bloque abierto");
                     }
                 }
                 primeraLinea = false;
@@ -172,7 +163,7 @@ ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
                     Token first = tokens.remove(0);
                     pendingTokens.addAll(tokens);
                     // Devolvemos el primer token ahora; el resto se entregarán en llamadas posteriores
-                    yypushback(1);   // devolvemos el carácter leído para que se procese en NORMAL
+                    yypushback(1);  // Devolvemos el carácter leído para que se procese en NORMAL
                     yybegin(NORMAL);
                     return first;
                 } else {
@@ -184,7 +175,7 @@ ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
 }
 
 // ==================================================================
-// ESTADO COMENTARIO_LINEA: ignoramos hasta el fin de línea
+// ESTADO COMENTARIO_LINEA: todo se ignora hasta el fin de línea
 // ==================================================================
 
 <COMENTARIO_LINEA> {
@@ -198,94 +189,91 @@ ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
 
 <NORMAL> {
     // ------------------------------------------------------------------
-    //  Blancos y comentarios (se ignoran)
+    //  Espacios y comentarios se ignoran
     // ------------------------------------------------------------------
-    {Blanco}                     { /* Ignorar */ }
-    {ComentarioLinea}            { /* Ignorar */ }
-    {ComentarioLineaBarra}       { /* Ignorar */ }
+    {Espacio}           { /* Ignorar */ }
+    {ComentarioLinea}   { /* Ignorar */ }
+    "{*"                { yybegin(COMENTARIO_MULTILINEA); }
 
     // ------------------------------------------------------------------
     //  Palabras reservadas
     // ------------------------------------------------------------------
-    "PROGRAM"    { return token("PROGRAM", yytext()); }
-    "WHILE"      { return token("WHILE", yytext()); }
-    "ALT_WHILE"  { return token("ALT_WHILE", yytext()); }
-    "IF"         { return token("IF", yytext()); }
-    "ELIF"       { return token("ELIF", yytext()); }
-    "ELSE"       { return token("ELSE", yytext()); }
-    "BREAK"      { return token("BREAK", yytext()); }
-    "CONTINUE"   { return token("CONTINUE", yytext()); }
-    "PRINT"      { return token("PRINT", yytext()); }
-    "READ_INT"   { return token("READ_INT", yytext()); }
-    "READ_FLOAT" { return token("READ_FLOAT", yytext()); }
-    "READ_BOOL"  { return token("READ_BOOL", yytext()); }
-    "INT"        { return token("INT", yytext()); }          // Tipo entero
-    "FLOAT"      { return token("FLOAT", yytext()); }
-    "BOOLEAN"    { return token("BOOLEAN", yytext()); }
-    "ARRAY"      { return token("ARRAY", yytext()); }
+    "PROGRAM"       { return token("PROGRAM", yytext()); }
+    "WHILE"         { return token("WHILE", yytext()); }
+    "ALT_WHILE"     { return token("ALT_WHILE", yytext()); }
+    "BREAK"         { return token("BREAK", yytext()); }
+    "CONTINUE"      { return token("CONTINUE", yytext()); }
+    "IF"            { return token("IF", yytext()); }
+    "ELIF"          { return token("ELIF", yytext()); }
+    "ELSE"          { return token("ELSE", yytext()); }
+    "PRINT"         { return token("PRINT", yytext()); }
+    "READ_INT"      { return token("READ_INT", yytext()); }
+    "READ_FLOAT"    { return token("READ_FLOAT", yytext()); }
+    "READ_BOOL"     { return token("READ_BOOL", yytext()); }
+    "INT"           { return token("INT", yytext()); }
+    "FLOAT"         { return token("FLOAT", yytext()); }
+    "BOOLEAN"       { return token("BOOLEAN", yytext()); }
+    "ARRAY"         { return token("ARRAY", yytext()); }
+    "moda"          { return token("MODA", yytext()); }
 
     // ------------------------------------------------------------------
     //  Literales
     // ------------------------------------------------------------------
-    {Booleano}         { return token("BOOLEANO", yytext()); }
-    {ConstanteArreglo} { return token("CONSTANTE_ARREGLO", yytext()); }
-    {Flotante}         { return token("FLOTANTE", yytext()); }
-    {EnteroSinCero}    { return token("ENTERO", yytext()); }
-    {Identificador}    { return token("IDENTIFICADOR", yytext()); }
+    {Entero} { return token("ENTERO", yytext()); }
+    {Flotante}      { return token("FLOTANTE", yytext()); }
+    {Booleano}      { return token("BOOLEANO", yytext()); }
+    {Identificador} { return token("IDENTIFICADOR", yytext()); }
 
     // ------------------------------------------------------------------
     //  Operadores aritméticos
     // ------------------------------------------------------------------
-    "+"   { return token("SUMA", yytext()); }
-    "-"   { return token("RESTA", yytext()); }
-    "*"   { return token("MULTIPLICACION", yytext()); }
-    "/"   { return token("DIVISION", yytext()); }
+    "+" { return token("SUMA", yytext()); }
+    "-" { return token("RESTA", yytext()); }
+    "*" { return token("MULTIPLICACION", yytext()); }
+    "/" { return token("DIVISION", yytext()); }
 
     // ------------------------------------------------------------------
     //  Operadores relacionales y lógicos
     // ------------------------------------------------------------------
-    "=="  { return token("IGUAL", yytext()); }
-    "!="  { return token("DESIGUAL", yytext()); }
-    ">="  { return token("MAYOR_IGUAL", yytext()); }
-    "<="  { return token("MENOR_IGUAL", yytext()); }
-    "&&"  { return token("CONJUNCION", yytext()); }
-    "||"  { return token("DISYUNCION", yytext()); }
-    "="   { return token("ASIGNACION", yytext()); }
-    ">"   { return token("MAYOR", yytext()); }
-    "<"   { return token("MENOR", yytext()); }
-    "!"   { return token("NEGACION", yytext()); }
+    "=="    { return token("IGUAL", yytext()); }
+    "!="    { return token("DESIGUAL", yytext()); }
+    ">="    { return token("MAYOR_IGUAL", yytext()); }
+    "<="    { return token("MENOR_IGUAL", yytext()); }
+    "&&"    { return token("CONJUNCION", yytext()); }
+    "||"    { return token("DISYUNCION", yytext()); }
+    "="     { return token("ASIGNACION", yytext()); }
+    ">"     { return token("MAYOR", yytext()); }
+    "<"     { return token("MENOR", yytext()); }
+    "!"     { return token("NEGACION", yytext()); }
 
     // ------------------------------------------------------------------
     //  Signos de puntuación
     // ------------------------------------------------------------------
-    "("   { return token("PARENTESIS_IZQ", yytext()); }
-    ")"   { return token("PARENTESIS_DER", yytext()); }
-    "["   { return token("CORCHETE_IZQ", yytext()); }
-    "]"   { return token("CORCHETE_DER", yytext()); }
-    "{"   { return token("LLAVE_IZQ", yytext()); }
-    "}"   { return token("LLAVE_DER", yytext()); }
-    ","   { return token("COMA", yytext()); }
-    "."   { return token("PUNTO", yytext()); }
-    ":"   { return token("DOS_PUNTOS", yytext()); }    // Para declaraciones
+    "(" { return token("PARENTESIS_IZQ", yytext()); }
+    ")" { return token("PARENTESIS_DER", yytext()); }
+    "[" { return token("CORCHETE_IZQ", yytext()); }
+    "]" { return token("CORCHETE_DER", yytext()); }
+    "," { return token("COMA", yytext()); }
+    ":" { return token("DOS_PUNTOS", yytext()); } 
 
     // ------------------------------------------------------------------
     //  Cadenas de caracteres (entrada al estado CADENA)
     // ------------------------------------------------------------------
-    \"    { cadena.setLength(0);
+    \"  { cadena.setLength(0);
             cadena_linea   = this.yyline;
             cadena_columna = this.yycolumn;
             yybegin(CADENA);
-          }
+        }
 
     // ------------------------------------------------------------------
-    //  Fin de línea: volvemos al estado MEDICION para medir la siguiente línea
+    //  Fin de línea: vuelve al estado MEDICION para medir la siguiente línea
     // ------------------------------------------------------------------
-    \n    { yybegin(MEDICION); }
+    {Terminacion}   { yybegin(MEDICION); }
 
     // ------------------------------------------------------------------
-    //  Cualquier carácter no reconocido -> error léxico
+    //  Cualquier carácter no reconocido es un error léxico
     // ------------------------------------------------------------------
-    [^]   { throw new Error("Carácter inválido <" + yytext() + ">"); }
+    [^] { throw new Error("Carácter inválido <" + yytext() + ">"); }
 }
 
 // ==================================================================
@@ -313,6 +301,6 @@ ConstanteArreglo = \[{Blanco}*{Numero}({Blanco}*,{Blanco}*{Numero})*{Blanco}*\]
 
 <COMENTARIO_MULTILINEA> {
     "*}"    { yybegin(MEDICION); }
-    <<EOF>> { throw new Error("Fin del archivo dentro del comentario multilínea"); }
+    <<EOF>> { throw new Error("Fin del archivo dentro del comentario multilínea."); }
     [^]     { /* Ignorar cualquier carácter */ }
 }
