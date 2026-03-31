@@ -1,0 +1,7 @@
+PROGRAM
+    a = 10
+    b = 20
+    IF a > b
+        PRINT("a es mayor")
+    ELSE
+        PRINT("b es mayor")
