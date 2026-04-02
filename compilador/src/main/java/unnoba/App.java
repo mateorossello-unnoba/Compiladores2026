@@ -15,14 +15,13 @@ public class App {
     public static void main(String[] args) {
         Scanner teclado = new Scanner(System.in);
 
-        System.out.println("=== Analizador Léxico ===");
+        System.out.println("=== Compilador UNNOBA ===");
         System.out.println("¿Desde dónde desea leer?");
         System.out.println("1 - Desde consola");
         System.out.println("2 - Desde archivo (" + ARCHIVO + ")");
         System.out.print("Ingrese su opción: ");
 
         String opcion = teclado.nextLine().trim();
-
         Lexer lexico;
 
         try {
@@ -34,22 +33,15 @@ public class App {
                 System.out.println("\nLeyendo desde: " + ARCHIVO + "\n");
                 lexico = new Lexer(new FileReader(ARCHIVO));
             } else {
-                System.out.println("Opción inválida. Saliendo.");
+                System.out.println("Opción inválida. Saliendo del programa.");
                 return;
             }
 
-            Token token;
+            Parser parser = new Parser(lexico, new java_cup.runtime.ComplexSymbolFactory());
 
-            while ((token = lexico.next_token()) != null) {
-                System.out.println("Token: " + token);
-
-                if (token.nombre.equals("FIN")) {
-                    System.out.println("\nToken FIN recibido. Terminando análisis.");
-                    break;
-                }
-            }
+            parser.parse();
             
-            System.out.println("Análisis léxico terminado.");
+            System.out.println("\n=== Proceso finalizado con éxito ===");
         } catch (Exception exception) {
             System.out.println("Error: " + exception.getMessage());
         } finally {

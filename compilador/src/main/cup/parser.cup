@@ -1,0 +1,43 @@
+package unnoba;
+import java_cup.runtime.*;
+
+// ---------------------------------------------------------
+// 1. Declaración de terminales (JFlex)
+// ---------------------------------------------------------
+
+// Indentación
+terminal INDENT, DEDENT;
+
+// Palabras reservadas
+terminal PROGRAM, WHILE, ALT_WHILE, BREAK, CONTINUE, IF, ELIF, ELSE;
+terminal PRINT, READ_INT, READ_FLOAT, READ_BOOL;
+terminal INT, FLOAT, BOOLEAN, ARRAY, MODA;
+
+// Operadores aritméticos
+terminal SUMA, RESTA, MULTIPLICACION, DIVISION;
+
+// Operadores relacionales y lógicos
+terminal ASIGNACION, IGUAL, DESIGUAL, MAYOR_IGUAL, MENOR_IGUAL, MAYOR, MENOR;
+terminal CONJUNCION, DISYUNCION, NEGACION;
+
+// Puntuación
+terminal PARENTESIS_IZQ, PARENTESIS_DER, CORCHETE_IZQ, CORCHETE_DER;
+terminal COMA, DOS_PUNTOS;
+
+// Literales
+terminal String IDENTIFICADOR, ENTERO, FLOTANTE, BOOLEANO, CADENA, ARREGLO;
+
+// ---------------------------------------------------------
+// 2. Declaración de No Terminales (Reglas de la gramática)
+// ---------------------------------------------------------
+non terminal inicio;
+
+// ---------------------------------------------------------
+// 3. Punto de partida
+// ---------------------------------------------------------
+start with inicio;
+
+// ---------------------------------------------------------
+// 4. Reglas Gramaticales
+// ---------------------------------------------------------
+inicio ::= PROGRAM {: System.out.println("Sintáctico -> Se reconoció la palabra PROGRAM correctamente."); :};
