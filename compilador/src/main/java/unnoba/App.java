@@ -1,16 +1,15 @@
 package unnoba;
 
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 /**
  * Punto de entrada principal del compilador.
- * Permite ejecutar el analizador léxico leyendo desde consola o desde un archivo de prueba.
+ * Permite ejecutar el analizador léxico y sintáctico leyendo desde consola o desde un archivo de prueba.
  */
 
 public class App {
-    private static final String ARCHIVO = "./src/input.txt";
+    private static final String ARCHIVO = "./compilador/src/input.txt";
 
     public static void main(String[] args) {
         Scanner teclado = new Scanner(System.in);
@@ -28,7 +27,17 @@ public class App {
             if (opcion.equals("1")) {
                 System.out.println("\nModo consola. Ingrese expresiones línea a línea.");
                 System.out.println("Escriba FIN para terminar.\n");
-                lexico = new Lexer(new InputStreamReader(System.in));
+                StringBuilder codigoConsola = new StringBuilder();
+
+                while (true) {
+                    String linea = teclado.nextLine();
+                    if (linea.trim().equals("FIN")) {
+                        break;
+                    }
+                    codigoConsola.append(linea).append("\n");
+                }
+
+                lexico = new Lexer(new java.io.StringReader(codigoConsola.toString()));
             } else if (opcion.equals("2")) {
                 System.out.println("\nLeyendo desde: " + ARCHIVO + "\n");
                 lexico = new Lexer(new FileReader(ARCHIVO));

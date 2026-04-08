@@ -145,7 +145,7 @@ Booleano = "true" | "false"
 %%
 
 // ==================================================================
-// ESTADO MEDICION: al comienzo de cada línea
+//  ESTADO MEDICION: al comienzo de cada línea
 // ==================================================================
 
 <MEDICION> {
@@ -172,7 +172,7 @@ Booleano = "true" | "false"
 }
 
 // ==================================================================
-// ESTADO COMENTARIO_LINEA: todo se ignora hasta el fin de línea
+//  ESTADO COMENTARIO_LINEA: todo se ignora hasta el fin de línea
 // ==================================================================
 
 <COMENTARIO_LINEA> {
@@ -182,7 +182,7 @@ Booleano = "true" | "false"
 }
 
 // ==================================================================
-// ESTADO NORMAL: análisis de tokens en el cuerpo del código
+//  ESTADO NORMAL: análisis de tokens en el cuerpo del código
 // ==================================================================
 
 <NORMAL> {
@@ -276,7 +276,7 @@ Booleano = "true" | "false"
 }
 
 // ==================================================================
-// ESTADO CADENA: manejo de cadenas literales
+//  ESTADO CADENA: manejo de cadenas literales
 // ==================================================================
 
 <CADENA> {
@@ -294,7 +294,7 @@ Booleano = "true" | "false"
 }
 
 // ==================================================================
-// ESTADO COMENTARIO_MULTILINEA: todo se ignora hasta encontrar "*}"
+//  ESTADO COMENTARIO_MULTILINEA: todo se ignora hasta encontrar "*}"
 // ==================================================================
 
 <COMENTARIO_MULTILINEA> {
