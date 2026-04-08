@@ -1,0 +1,70 @@
+INT: iterador, limite, valor_leido
+FLOAT: acumulador, promedio, m
+BOOLEAN: bandera, es_mayor
+ARRAY[5]: arreglo_datos, arreglo_vacio
+
+PROGRAM
+    {* ========================================
+        Inicialización de variables básicas
+        y prueba de asignaciones simples
+       ======================================== *}
+    iterador = 0
+    limite = 5
+    acumulador = 0.0
+    bandera = true
+    
+    % Prueba de asignación de arreglos literales
+    arreglo_datos = [1.5, 2.5, 2.5, 3.0, 3.0]
+    
+    PRINT("Iniciando pruebas del compilador UNNOBA")
+    
+    % Prueba de lectura desde consola como factor
+    PRINT("Ingrese un numero entero para comenzar:")
+    valor_leido = READ_INT()
+    
+    {* ========================================
+        Estructura IF - ELIF - ELSE 
+        Prueba de operadores lógicos y relacionales
+       ======================================== *}
+    IF (valor_leido > limite) && bandera
+        PRINT("El valor supera el limite")
+        es_mayor = true
+    ELIF valor_leido == limite
+        PRINT("El valor es exactamente igual al limite")
+        es_mayor = false
+    ELSE
+        PRINT("El valor esta por debajo del limite")
+        es_mayor = !true
+    
+    {* ========================================
+        Ciclo WHILE y ALT_WHILE 
+        Prueba de matemáticas, arreglos y BREAK/CONTINUE
+       ======================================== *}
+    WHILE iterador < limite
+        % Acceso a arreglo y suma
+        acumulador = acumulador + arreglo_datos[iterador]
+        iterador = iterador + 1
+        
+        IF acumulador >= 10.0
+            PRINT("Acumulador alcanzo el maximo")
+            BREAK
+            
+    ALT_WHILE es_mayor == false
+        PRINT("Ajustando bandera...")
+        es_mayor = true
+        CONTINUE
+        
+    {* ========================================
+        Prueba del Tema Especial: MODA
+       ======================================== *}
+    PRINT("Calculando la moda del arreglo de datos:")
+    m = moda(arreglo_datos)
+    PRINT(m)
+    
+    {* ========================================
+        Operaciones complejas combinadas
+       ======================================== *}
+    promedio = acumulador / 5.
+    
+    IF promedio != m || acumulador <= 0.
+        PRINT("Fin de las operaciones con exito")

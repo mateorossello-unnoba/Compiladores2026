@@ -1,0 +1,210 @@
+package unnoba;
+import java_cup.runtime.*;
+
+// ---------------------------------------------------------
+//  Código Java incrustado para el Parser
+// ---------------------------------------------------------
+parser code {:
+    // Método para manejar errores sintácticos recuperables
+    public void syntax_error(Symbol symbol) {
+        System.err.println("Error Sintáctico en la línea " + (symbol.left) +  ", columna " + (symbol.right) + ". No se esperaba el componente: " + symbol.value);
+    }
+
+    // Método para manejar errores sintácticos fatales
+    public void unrecovered_syntax_error(Symbol symbol) throws java.lang.Exception {
+        System.err.println("Error Fatal: No se pudo recuperar del error en la línea " + (symbol.left) + ", columna " + (symbol.right));
+        throw new Exception("Error Sintáctico Fatal");
+    }
+:}
+
+// ---------------------------------------------------------
+//  Declaración de Terminales (Tokens del Lexer)
+// ---------------------------------------------------------
+
+// Indentación
+terminal INDENT, DEDENT;
+
+// Palabras reservadas
+terminal PROGRAM, WHILE, ALT_WHILE, BREAK, CONTINUE, IF, ELIF, ELSE;
+terminal PRINT, READ_INT, READ_FLOAT, READ_BOOL;
+terminal INT, FLOAT, BOOLEAN, ARRAY, MODA;
+
+// Operadores aritméticos
+terminal SUMA, RESTA, MULTIPLICACION, DIVISION, MENOS_UNARIO;
+
+// Operadores relacionales y lógicos
+terminal ASIGNACION, IGUAL, DESIGUAL, MAYOR_IGUAL, MENOR_IGUAL, MAYOR, MENOR;
+terminal CONJUNCION, DISYUNCION, NEGACION;
+
+// Puntuación
+terminal PARENTESIS_IZQ, PARENTESIS_DER, CORCHETE_IZQ, CORCHETE_DER;
+terminal COMA, DOS_PUNTOS;
+
+// Literales (Contienen valores)
+terminal String IDENTIFICADOR, ENTERO, FLOTANTE, BOOLEANO, CADENA, ARREGLO;
+
+// ---------------------------------------------------------
+//  Declaración de No Terminales
+// ---------------------------------------------------------
+non terminal String inicio, programa;
+non terminal String zona_declaraciones, lista_declaraciones, declaracion, tipo, lista_variables;
+non terminal String bloque_programa, sentencias, sentencia;
+non terminal String sentencia_asignacion, sentencia_print, sentencia_read;
+non terminal String sentencia_if, lista_elif, bloque_else;
+non terminal String sentencia_while, lista_alt_while;
+non terminal String sentencia_control;
+non terminal String expr, expr_and, expr_rel, expr_arit, term, factor;
+non terminal String expr_moda;
+
+// ---------------------------------------------------------
+//  Precedencia y Asociatividad
+// ---------------------------------------------------------
+
+
+// ---------------------------------------------------------
+//  Punto de partida
+// ---------------------------------------------------------
+start with inicio;
+
+// ---------------------------------------------------------
+//  Reglas Gramaticales
+// ---------------------------------------------------------
+inicio ::= programa {: 
+            System.out.println("\n=== Compilación exitosa ==="); 
+        :};
+
+programa ::= zona_declaraciones bloque_programa {:
+            System.out.println("REGLA: programa -> zona_declaraciones bloque_programa");
+        :};
+
+//
+// --- ZONA DE DECLARACIONES ---
+//
+
+zona_declaraciones ::= lista_declaraciones {:
+            System.out.println("REGLA: zona_declaraciones ya analizada");
+        :}
+        | /* Vacío */ ;
+
+lista_declaraciones ::= lista_declaraciones declaracion | declaracion ;
+
+declaracion ::= tipo:t DOS_PUNTOS lista_variables:v {:
+            System.out.println("REGLA: Declaracion de variables -> " + t + ": " + v);
+        :};
+
+tipo ::= INT {: RESULT = "INT"; :} 
+        | FLOAT {: RESULT = "FLOAT"; :} 
+        | BOOLEAN {: RESULT = "BOOLEAN"; :} 
+        | ARRAY CORCHETE_IZQ ENTERO:e CORCHETE_DER {: RESULT = "ARRAY[" + e + "]"; :};
+
+lista_variables ::= lista_variables:lista COMA IDENTIFICADOR:id {: RESULT = lista + ", " + id; :}
+        | IDENTIFICADOR:id {: RESULT = id; :};
+
+//
+// --- BLOQUE PRINCIPAL (PROGRAM) ---
+//
+
+bloque_programa ::= PROGRAM INDENT sentencias DEDENT {:
+            System.out.println("REGLA: bloque_programa ya analizada");
+        :}
+        | PROGRAM ;
+
+sentencias ::= sentencias sentencia | sentencia ;
+
+sentencia ::= sentencia_asignacion | sentencia_if | sentencia_while | sentencia_print | sentencia_read | sentencia_control ;
+
+sentencia_asignacion ::= IDENTIFICADOR:id ASIGNACION expr:e {:
+            System.out.println("REGLA: Asginación -> " + id + " = " + e);
+        :}
+        | IDENTIFICADOR:id CORCHETE_IZQ expr:idx CORCHETE_DER ASIGNACION expr:e {:
+            System.out.println("REGLA: Asginación en Arreglo -> " + id + "[" + idx + "] = " + e);
+        :};
+
+sentencia_print ::= PRINT PARENTESIS_IZQ expr:e PARENTESIS_DER {:
+            System.out.println("REGLA: Impresión -> (" + e + ")");
+        :};
+
+sentencia_read ::= READ_INT PARENTESIS_IZQ PARENTESIS_DER {: RESULT = "READ_INT()"; System.out.println("REGLA: Lectura de Entero"); :}
+        | READ_FLOAT PARENTESIS_IZQ PARENTESIS_DER {: RESULT = "READ_FLOAT()"; System.out.println("REGLA: Lectura de Float"); :}
+        | READ_BOOL PARENTESIS_IZQ PARENTESIS_DER {: RESULT = "READ_BOOL()"; System.out.println("REGLA: Lectura de Booleano"); :};
+
+sentencia_control ::= BREAK {: System.out.println("REGLA: Control -> BREAK"); :} 
+        | CONTINUE {: System.out.println("REGLA: Control -> CONTINUE"); :};
+
+sentencia_if ::= IF expr INDENT sentencias DEDENT lista_elif bloque_else {:
+            System.out.println("REGLA: Sentencia IF ya analizada.");
+        :};
+
+lista_elif ::= lista_elif ELIF expr INDENT sentencias DEDENT | /* Vacío */ ;
+bloque_else ::= ELSE INDENT sentencias DEDENT | /* Vacío */ ;
+
+sentencia_while ::= WHILE expr INDENT sentencias DEDENT lista_alt_while {:
+            System.out.println("REGLA: Sentencia WHILE ya analizada");
+        :};
+
+lista_alt_while ::= lista_alt_while ALT_WHILE expr INDENT sentencias DEDENT | /* Vacío */ ;
+
+// --- EXPRESIONES LÓGICAS (OR) ---
+expr ::= expr:e1 DISYUNCION expr_and:e2 {: 
+            RESULT = e1 + "||" + e2; System.out.println("REGLA: " + RESULT); 
+        :}
+        | expr_and:e {: RESULT = e; :} ;
+
+// --- EXPRESIONES LÓGICAS (AND) ---
+expr_and ::= expr_and:e1 CONJUNCION expr_rel:e2 {: 
+            RESULT = e1 + "&&" + e2; System.out.println("REGLA: " + RESULT); 
+        :}
+        | expr_rel:e {: RESULT = e; :} ;
+
+// --- EXPRESIONES RELACIONALES ---
+// (No son asociativas, por lo que fuerzan a que se compare un valor aritmético con otro)
+expr_rel ::= expr_arit:e1 IGUAL expr_arit:e2 {: RESULT = e1 + "==" + e2; System.out.println("REGLA: " + RESULT); :}
+        | expr_arit:e1 DESIGUAL expr_arit:e2 {: RESULT = e1 + "!=" + e2; System.out.println("REGLA: " + RESULT); :}
+        | expr_arit:e1 MAYOR_IGUAL expr_arit:e2 {: RESULT = e1 + ">=" + e2; System.out.println("REGLA: " + RESULT); :}
+        | expr_arit:e1 MENOR_IGUAL expr_arit:e2 {: RESULT = e1 + "<=" + e2; System.out.println("REGLA: " + RESULT); :}
+        | expr_arit:e1 MAYOR expr_arit:e2 {: RESULT = e1 + ">" + e2; System.out.println("REGLA: " + RESULT); :}
+        | expr_arit:e1 MENOR expr_arit:e2 {: RESULT = e1 + "<" + e2; System.out.println("REGLA: " + RESULT); :}
+        | expr_arit:e {: RESULT = e; :} ;
+
+// --- EXPRESIONES ARITMÉTICAS (+, -) ---
+// (Asociativas por izquierda)
+expr_arit ::= expr_arit:e1 SUMA term:e2 {: 
+            System.out.println("REGLA: expr -> expr SUMA expr"); RESULT = e1 + "+" + e2; 
+        :}
+        | expr_arit:e1 RESTA term:e2 {: 
+            System.out.println("REGLA: expr -> expr RESTA expr"); RESULT = e1 + "-" + e2; 
+        :}
+        | term:e {: RESULT = e; :} ;
+
+// --- TÉRMINOS (*, /) ---
+// (Tienen mayor precedencia que la suma o resta)
+term ::= term:e1 MULTIPLICACION factor:e2 {: 
+            System.out.println("REGLA: expr -> expr MULT expr"); RESULT = e1 + "*" + e2; 
+        :}
+        | term:e1 DIVISION factor:e2 {: 
+            System.out.println("REGLA: expr -> expr DIV expr"); RESULT = e1 + "/" + e2; 
+        :}
+        | factor:e {: RESULT = e; :} ;
+
+// --- FACTORES (Valores atómicos y máxima precedencia) ---
+factor ::= RESTA factor:e {: 
+            System.out.println("REGLA: expr -> MENOS_UNARIO expr"); RESULT = "-" + e; 
+        :}
+        | NEGACION factor:e {: RESULT = "!" + e; System.out.println("REGLA: " + RESULT); :}
+        | PARENTESIS_IZQ expr:e PARENTESIS_DER {: RESULT = "(" + e + ")"; System.out.println("REGLA: expr -> ( expr )"); :}
+        | IDENTIFICADOR:id {: RESULT = id; System.out.println("REGLA: expr -> IDENTIFICADOR (" + id + ")"); :}
+        | IDENTIFICADOR:id CORCHETE_IZQ expr:e CORCHETE_DER {: RESULT = id + "[" + e + "]"; System.out.println("REGLA: expr -> Acceso Arreglo"); :}
+        | ENTERO:e {: RESULT = e; System.out.println("REGLA: expr -> ENTERO (" + e + ")"); :}
+        | FLOTANTE:f {: RESULT = f; System.out.println("REGLA: expr -> FLOTANTE (" + f + ")"); :}
+        | BOOLEANO:b {: RESULT = b; System.out.println("REGLA: expr -> BOOLEANO (" + b + ")"); :}
+        | CADENA:c {: RESULT = "\"" + c + "\""; System.out.println("REGLA: expr -> CADENA"); :}
+        | ARREGLO:a {: RESULT = a; System.out.println("REGLA: expr -> ARREGLO LITERAL"); :}
+        | expr_moda:m {: RESULT = m; :}
+        | READ_INT PARENTESIS_IZQ PARENTESIS_DER {: RESULT = "READ_INT()"; :}
+        | READ_FLOAT PARENTESIS_IZQ PARENTESIS_DER {: RESULT = "READ_FLOAT()"; :}
+        | READ_BOOL PARENTESIS_IZQ PARENTESIS_DER {: RESULT = "READ_BOOL()"; :} ;
+
+expr_moda ::= MODA PARENTESIS_IZQ expr:e PARENTESIS_DER {: 
+            RESULT = "moda(" + e + ")";
+            System.out.println("REGLA: Tema Especial -> MODA");
+        :};
