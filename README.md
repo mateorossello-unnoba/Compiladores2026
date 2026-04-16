@@ -14,9 +14,8 @@ En su lugar, el ciclo de vida de Maven se encarga de leer el archivo de reglas l
 
 ## Compilar y Ejecutar
 
-Cada vez que se modifique el archivo `lexico.flex` o `parser.cup`, se debe abrir un terminal en la carpeta raíz del proyecto (donde se encuentra el archivo `pom.xml`) y ejecutar los siguientes comandos de Maven:
+Cada vez que se modifique el archivo `lexico.flex` o `parser.cup`, se debe abrir un terminal en la carpeta raíz del proyecto (donde se encuentra el archivo `pom.xml`) y ejecutar el siguiente comando de Maven:
 
 ```bash
 mvn clean compile
-mvn exec:java
 ```

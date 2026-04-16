@@ -39,7 +39,7 @@ import java.util.Queue;
 
     // Métodos auxiliares para crear tokens usando ComplexSymbolFactory.Location
     private Symbol token(int cupId, String nombreConsola) {
-        System.out.println("Léxico -> Reconocido: [" + nombreConsola + "]");
+        // System.out.println("[LEXER] Token: [" + nombreConsola + "]");
         return complexSymbolFactory.newSymbol(
             nombreConsola, 
             cupId, 
@@ -49,7 +49,7 @@ import java.util.Queue;
     }
 
     private Symbol token(int cupId, String nombreConsola, Object valor) {
-        System.out.println("Léxico -> Reconocido: [" + nombreConsola + "] | Lexema: " + valor);
+        // System.out.println("[LEXER] Token: [" + nombreConsola + "] | Lexema: " + valor);
         return complexSymbolFactory.newSymbol(
             nombreConsola, 
             cupId, 
@@ -60,7 +60,7 @@ import java.util.Queue;
     }
 
     private Symbol token(int cupId, String nombreConsola, int linea, int columna, Object valor) {
-        System.out.println("Léxico -> Reconocido: [" + nombreConsola + "] | Lexema: " + valor);
+        // System.out.println("[LEXER] Token: [" + nombreConsola + "] | Lexema: " + valor);
         return complexSymbolFactory.newSymbol(
             nombreConsola, 
             cupId, 
@@ -110,13 +110,9 @@ import java.util.Queue;
 // ------------------------------------------------------------------
 //  Definición de macros (expresiones regulares reutilizables)
 // ------------------------------------------------------------------
-Terminacion = \r\n | \n | \r
-Espacio = [ ] | \t | \f
-Blanco = {Terminacion} | {Espacio}
-LineaBlanco = {Espacio}*{Terminacion}
 
 // Comentarios de una línea con %
-ComentarioLinea = "%"[^\r\n]*{Terminacion}?
+ComentarioLinea = "%"[^\r\n]*
 
 // Identificadores: comienzan con letra (incluye Unicode) y pueden contener letras, dígitos o _
 Identificador = \p{L}(\p{L} | [0-9] | "_")*
@@ -128,7 +124,7 @@ Flotante = {Digito}+"."{Digito}* | "."{Digito}+ // Ej: 12.34, .123, 123.
 
 FlotanteSigno = "-"? {Flotante}
 
-Arreglo = \[{Blanco}*({FlotanteSigno}({Blanco}*,{Blanco}*{FlotanteSigno})*)?{Blanco}*\]
+Arreglo = \[[ \t\f]*({FlotanteSigno}([ \t\f]*,[ \t\f]*{FlotanteSigno})*)?[ \t\f]*\]
 
 // Constantes booleanas
 Booleano = "true" | "false"
@@ -139,7 +135,6 @@ Booleano = "true" | "false"
 %state MEDICION
 %state NORMAL
 %state CADENA
-%state COMENTARIO_LINEA
 %state COMENTARIO_MULTILINEA
 
 %%
@@ -149,18 +144,15 @@ Booleano = "true" | "false"
 // ==================================================================
 
 <MEDICION> {
-    {LineaBlanco}   { /* Ignorar líneas completamente en blanco */ }
+    [ \t\f]*(\r|\n|\r\n) { /* Ignorar líneas completamente en blanco */ }
     
-    " "             { pendingIndent++; }
-    "\t"            { pendingIndent += 4; }
-
-    // Comentario de línea: pasa al estado COMENTARIO_LINEA
-    "%"             { pendingIndent = 0; yybegin(COMENTARIO_LINEA); }
+    " "                 { pendingIndent++; }
+    "\t"                { pendingIndent += 4; }
 
     // Comentario multilínea: pasa al estado COMENTARIO_MULTILINEA
     "{*"            { pendingIndent = 0; yybegin(COMENTARIO_MULTILINEA); }
 
-    [^ \t\r\n]      {
+    [^\t\r\n]       {
                         yypushback(1); 
                         yybegin(NORMAL);
                         processIndent(pendingIndent, yyline, yycolumn);
@@ -172,16 +164,6 @@ Booleano = "true" | "false"
 }
 
 // ==================================================================
-//  ESTADO COMENTARIO_LINEA: todo se ignora hasta el fin de línea
-// ==================================================================
-
-<COMENTARIO_LINEA> {
-    \n      { yybegin(MEDICION); }
-
-    [^\n]*  { /* Ignorar todo hasta el final de línea */ }
-}
-
-// ==================================================================
 //  ESTADO NORMAL: análisis de tokens en el cuerpo del código
 // ==================================================================
 
@@ -189,7 +171,7 @@ Booleano = "true" | "false"
     // ------------------------------------------------------------------
     //  Espacios y comentarios se ignoran
     // ------------------------------------------------------------------
-    {Espacio}           { /* Ignorar */ }
+    [ \t\f]+            { /* Ignorar */ }
     {ComentarioLinea}   { /* Ignorar */ }
     "{*"                { yybegin(COMENTARIO_MULTILINEA); }
 
@@ -267,7 +249,7 @@ Booleano = "true" | "false"
     // ------------------------------------------------------------------
     //  Fin de línea: vuelve al estado MEDICION para medir la siguiente línea
     // ------------------------------------------------------------------
-    {Terminacion}   { yybegin(MEDICION); }
+    \r|\n|\r\n  { yybegin(MEDICION); }
 
     // ------------------------------------------------------------------
     //  Cualquier carácter no reconocido es un error léxico
