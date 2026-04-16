@@ -18,24 +18,22 @@
   <build>
     <plugins>
       <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>3.1.1</version>
-          
-          <configuration>
-            <mainClass>unnoba.App</mainClass>
-            <includeProjectDependencies>true</includeProjectDependencies>
-            <additionalClasspathElements>
-                <additionalClasspathElement>${project.basedir}/libs/java-cup-11b-runtime.jar</additionalClasspathElement>
-            </additionalClasspathElements>
-          </configuration>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.1</version>
+        <configuration>
+          <mainClass>unnoba.App</mainClass>
+          <includeProjectDependencies>true</includeProjectDependencies>
+          <additionalClasspathElements>
+            <additionalClasspathElement>${project.basedir}/libs/java-cup-11b-runtime.jar</additionalClasspathElement>
+          </additionalClasspathElements>
+        </configuration>
       </plugin>
 
       <plugin>
         <groupId>de.jflex</groupId>
         <artifactId>jflex-maven-plugin</artifactId>
         <version>1.9.0</version>
-
         <executions>
           <execution>
             <goals>
@@ -43,7 +41,6 @@
             </goals>
           </execution>
         </executions>
-
         <configuration>
           <lexDefinitions>
             <lexDefinition>src/main/flex/lexico.flex</lexDefinition>
@@ -56,37 +53,53 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <version>3.1.0</version>
         <executions>
-            <execution>
-              <phase>generate-sources</phase>
-
-              <configuration>
-                <target>
-                  <java jar="${project.basedir}/libs/java-cup-11b.jar" fork="true">
-                    <arg value="-destdir"/>
-                    <arg value="${project.basedir}/src/main/java/unnoba/"/>
-                    <arg value="-parser"/>
-                    <arg value="Parser"/>
-                    <arg value="${project.basedir}/src/main/cup/parser.cup"/>
-                  </java>
-                </target>
-              </configuration>
-
-              <goals>
-                <goal>run</goal>
-              </goals>
-            </execution>
+          <execution>
+            <phase>generate-sources</phase>
+            <configuration>
+              <target>
+                <java jar="${project.basedir}/libs/java-cup-11b.jar" fork="true">
+                  <arg value="-destdir"/>
+                  <arg value="${project.basedir}/src/main/java/unnoba/"/>
+                  <arg value="-parser"/>
+                  <arg value="Parser"/>
+                  <arg value="${project.basedir}/src/main/cup/parser.cup"/>
+                </java>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <archive>
+              <manifest>
+                <addClasspath>true</addClasspath>
+                <classpathPrefix>libs/</classpathPrefix>
+                <mainClass>unnoba.App</mainClass>
+              </manifest>
+              <manifestEntries>
+                <Class-Path>../libs/java-cup-11b-runtime.jar libs/java-cup-11b-runtime.jar</Class-Path>
+              </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
   <dependencies>
     <dependency>
-        <groupId>java-cup.oficial</groupId>
-        <artifactId>java-cup-runtime</artifactId>
-        <version>11b</version>
-        <scope>system</scope>
-        <systemPath>${project.basedir}/libs/java-cup-11b-runtime.jar</systemPath>
+      <groupId>java-cup.oficial</groupId>
+      <artifactId>java-cup-runtime</artifactId>
+      <version>11b</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/java-cup-11b-runtime.jar</systemPath>
     </dependency>
-</dependencies>
+  </dependencies>
 </project>

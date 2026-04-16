@@ -39,7 +39,7 @@ import java.util.Queue;
 
     // Métodos auxiliares para crear tokens usando ComplexSymbolFactory.Location
     private Symbol token(int cupId, String nombreConsola) {
-        System.out.println("[LEXER] Token: [" + nombreConsola + "]");
+        // System.out.println("[LEXER] Token: [" + nombreConsola + "]");
         return complexSymbolFactory.newSymbol(
             nombreConsola, 
             cupId, 
@@ -49,7 +49,7 @@ import java.util.Queue;
     }
 
     private Symbol token(int cupId, String nombreConsola, Object valor) {
-        System.out.println("[LEXER] Token: [" + nombreConsola + "] | Lexema: " + valor);
+        // System.out.println("[LEXER] Token: [" + nombreConsola + "] | Lexema: " + valor);
         return complexSymbolFactory.newSymbol(
             nombreConsola, 
             cupId, 
@@ -60,7 +60,7 @@ import java.util.Queue;
     }
 
     private Symbol token(int cupId, String nombreConsola, int linea, int columna, Object valor) {
-        System.out.println("[LEXER] Token: [" + nombreConsola + "] | Lexema: " + valor);
+        // System.out.println("[LEXER] Token: [" + nombreConsola + "] | Lexema: " + valor);
         return complexSymbolFactory.newSymbol(
             nombreConsola, 
             cupId, 

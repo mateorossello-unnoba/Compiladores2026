@@ -72,7 +72,7 @@ start with inicio;
 // ---------------------------------------------------------
 inicio ::= programa {:
             System.out.println("\n[PARSER] Compilación exitosa");
-            tablaSimbolos.generarArchivo("compilador/src/tablaSimbolos.txt");
+            tablaSimbolos.generarArchivo("tablaSimbolos.txt");
         :};
 
 programa ::= zona_declaraciones bloque_programa {:

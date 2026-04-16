@@ -459,7 +459,7 @@ class CUP$Parser$actions {
               String RESULT =null;
 		
             System.out.println("\n[PARSER] Compilación exitosa");
-            tablaSimbolos.generarArchivo("compilador/src/tablaSimbolos.txt");
+            tablaSimbolos.generarArchivo("tablaSimbolos.txt");
         
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("inicio",0, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
