@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>unnoba</groupId>
+  <groupId>ar.edu.unnoba</groupId>
   <artifactId>compilador</artifactId>
   <version>0.0.1</version>
 
@@ -22,7 +22,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.1</version>
         <configuration>
-          <mainClass>unnoba.App</mainClass>
+          <mainClass>ar.edu.unnoba.App</mainClass>
           <includeProjectDependencies>true</includeProjectDependencies>
           <additionalClasspathElements>
             <additionalClasspathElement>${project.basedir}/libs/java-cup-11b-runtime.jar</additionalClasspathElement>
@@ -59,7 +59,7 @@
               <target>
                 <java jar="${project.basedir}/libs/java-cup-11b.jar" fork="true">
                   <arg value="-destdir"/>
-                  <arg value="${project.basedir}/src/main/java/unnoba/"/>
+                  <arg value="${project.basedir}/src/main/java/ar/edu/unnoba/"/>
                   <arg value="-parser"/>
                   <arg value="Parser"/>
                   <arg value="${project.basedir}/src/main/cup/parser.cup"/>
@@ -82,7 +82,7 @@
               <manifest>
                 <addClasspath>true</addClasspath>
                 <classpathPrefix>libs/</classpathPrefix>
-                <mainClass>unnoba.App</mainClass>
+                <mainClass>ar.edu.unnoba.App</mainClass>
               </manifest>
               <manifestEntries>
                 <Class-Path>../libs/java-cup-11b-runtime.jar libs/java-cup-11b-runtime.jar</Class-Path>

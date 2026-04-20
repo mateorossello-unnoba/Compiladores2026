@@ -1,4 +1,4 @@
-package unnoba;
+package ar.edu.unnoba;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -1,6 +1,5 @@
-package unnoba;
+package ar.edu.unnoba;
 import java_cup.runtime.*;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Queue;

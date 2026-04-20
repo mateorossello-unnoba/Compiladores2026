@@ -1,7 +1,7 @@
-package unnoba;
+package ar.edu.unnoba;
 
+import ar.edu.unnoba.ui.VentanaCompilador;
 import javax.swing.SwingUtilities;
-import unnoba.ui.VentanaCompilador;
 
 /**
  * Punto de entrada principal del compilador.

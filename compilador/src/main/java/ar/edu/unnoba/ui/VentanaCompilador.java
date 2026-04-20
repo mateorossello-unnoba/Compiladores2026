@@ -1,12 +1,12 @@
-package unnoba.ui;
+package ar.edu.unnoba.ui;
 
+import ar.edu.unnoba.Lexer;
+import ar.edu.unnoba.Parser;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import unnoba.Lexer;
-import unnoba.Parser;
 
 /**
  * Ventana principal del compilador con interfaz gráfica.
