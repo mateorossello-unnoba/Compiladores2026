@@ -9,6 +9,7 @@ import java.util.Queue;
 %public
 %class Lexer
 %unicode
+%ignorecase
 %implements java_cup.runtime.Scanner
 %type java_cup.runtime.Symbol
 %line
@@ -111,6 +112,7 @@ import java.util.Queue;
 // ------------------------------------------------------------------
 
 // Comentarios de una línea con %
+Espacio = [ \t\f]
 ComentarioLinea = "%"[^\r\n]*
 
 // Identificadores: comienzan con letra (incluye Unicode) y pueden contener letras, dígitos o _
@@ -123,7 +125,7 @@ Flotante = {Digito}+"."{Digito}* | "."{Digito}+ // Ej: 12.34, .123, 123.
 
 FlotanteSigno = "-"? {Flotante}
 
-Arreglo = \[[ \t\f]*({FlotanteSigno}([ \t\f]*,[ \t\f]*{FlotanteSigno})*)?[ \t\f]*\]
+Arreglo = \[{Espacio}*({FlotanteSigno}({Espacio}*,{Espacio}*{FlotanteSigno})*)?{Espacio}*\]
 
 // Constantes booleanas
 Booleano = "true" | "false"
@@ -143,7 +145,7 @@ Booleano = "true" | "false"
 // ==================================================================
 
 <MEDICION> {
-    [ \t\f]*(\r|\n|\r\n) { /* Ignorar líneas completamente en blanco */ }
+    {Espacio}*(\r|\n|\r\n) { /* Ignorar líneas completamente en blanco */ }
     
     " "                 { pendingIndent++; }
     "\t"                { pendingIndent += 4; }
@@ -170,7 +172,7 @@ Booleano = "true" | "false"
     // ------------------------------------------------------------------
     //  Espacios y comentarios se ignoran
     // ------------------------------------------------------------------
-    [ \t\f]+            { /* Ignorar */ }
+    {Espacio}+            { /* Ignorar */ }
     {ComentarioLinea}   { /* Ignorar */ }
     "{*"                { yybegin(COMENTARIO_MULTILINEA); }
 

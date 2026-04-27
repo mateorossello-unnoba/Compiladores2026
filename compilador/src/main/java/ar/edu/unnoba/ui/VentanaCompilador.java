@@ -2,8 +2,11 @@ package ar.edu.unnoba.ui;
 
 import ar.edu.unnoba.Lexer;
 import ar.edu.unnoba.Parser;
+import ar.edu.unnoba.sym;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java_cup.runtime.Symbol;
+import java_cup.runtime.ComplexSymbolFactory;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -36,12 +39,14 @@ public class VentanaCompilador extends JFrame {
         JButton botonCargar = crearBotonEstilizado("📂 Cargar Archivo", null);
         JButton botonGuardar = crearBotonEstilizado("💾 Guardar Archivo", null);
         JButton botonLimpiar = crearBotonEstilizado("❌ Limpiar Consola", null);
-        JButton botonCompilar = crearBotonEstilizado("▶ Compilar Código", null); 
+        JButton botonCompilarLexico = crearBotonEstilizado("▶ Análisis Léxico", null); 
+        JButton botonCompilarSintactico = crearBotonEstilizado("▶ Análisis Sintáctico", null); 
 
         panelSuperior.add(botonCargar);
         panelSuperior.add(botonGuardar);
         panelSuperior.add(botonLimpiar);
-        panelSuperior.add(botonCompilar);
+        panelSuperior.add(botonCompilarLexico);
+        panelSuperior.add(botonCompilarSintactico);
 
         add(panelSuperior, BorderLayout.NORTH);
 
@@ -72,7 +77,8 @@ public class VentanaCompilador extends JFrame {
         botonCargar.addActionListener((ActionEvent event) -> cargarArchivo());
         botonGuardar.addActionListener((ActionEvent event) -> guardarArchivo());
         botonLimpiar.addActionListener((ActionEvent event) -> limpiarConsola());
-        botonCompilar.addActionListener((ActionEvent event) -> compilarCodigo());
+        botonCompilarLexico.addActionListener((ActionEvent event) -> analizarLexico());
+        botonCompilarSintactico.addActionListener((ActionEvent event) -> analizarSintactico());
     }
 
     private JButton crearBotonEstilizado(String texto, Color fondo) {
@@ -131,7 +137,7 @@ public class VentanaCompilador extends JFrame {
         areaConsola.setText("");
     }
 
-    private void compilarCodigo() {
+    private void analizarLexico() {
         String codigo = areaCodigo.getText();
 
         if (codigo.trim().isEmpty()) {
@@ -147,11 +153,59 @@ public class VentanaCompilador extends JFrame {
         System.setErr(printStream);
 
         try {
-            System.out.println("--- Iniciando análisis ---\n");
+            System.out.println("--- Iniciando Análisis Léxico ---\n");
+            
             Lexer lexico = new Lexer(new StringReader(codigo));
-            Parser parser = new Parser(lexico, new java_cup.runtime.ComplexSymbolFactory());
+            Symbol token;
+            
+            while ((token = lexico.next_token()) != null && token.sym != sym.EOF) {
+                String nombreToken;
+                
+                if (token.sym >= 0 && token.sym < sym.terminalNames.length) {
+                    nombreToken = sym.terminalNames[token.sym];
+                } else {
+                    nombreToken = "DESCONOCIDO (" + token.sym + ")";
+                }
+                
+                System.out.println("[LEXER] Token: [" + nombreToken + "] | Lexema: " + token.value);
+            }
+
+            System.out.println("\n--- Análisis Léxico finalizado sin errores ---");
+        } catch (Error error) {
+            System.err.println("\n[ERROR LÉXICO] " + error.getMessage());
+        } catch (Exception exception) {
+            System.err.println("\nError: " + exception.getMessage());
+        } finally {
+            System.out.flush();
+            System.setOut(oldOut);
+            System.setErr(oldErr);
+            areaConsola.setText(byteArrayOutputStream.toString());
+        }
+    }
+
+    private void analizarSintactico() {
+        String codigo = areaCodigo.getText();
+
+        if (codigo.trim().isEmpty()) {
+            areaConsola.setText("--- El editor está vacío ---");
+            return;
+        }
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(byteArrayOutputStream);
+        PrintStream oldOut = System.out;
+        PrintStream oldErr = System.err;
+        System.setOut(printStream);
+        System.setErr(printStream);
+
+        try {
+            System.out.println("--- Iniciando Análisis Sintáctico ---\n");
+
+            Lexer lexico = new Lexer(new StringReader(codigo));
+            Parser parser = new Parser(lexico, new ComplexSymbolFactory());
             parser.parse();
-            System.out.println("\n--- Proceso finalizado ---");
+
+            System.out.println("\n--- Análisis Sintáctico finalizado sin errores ---");
         } catch (Exception exception) {
             System.err.println("\nError: " + exception.getMessage());
         } finally {
