@@ -207,7 +207,7 @@ public class VentanaCompilador extends JFrame {
 
             System.out.println("\n--- Análisis Sintáctico finalizado sin errores ---");
         } catch (Exception exception) {
-            System.err.println("\nError: " + exception.getMessage());
+            System.err.println("\n[ERROR SINTÁCTICO] " + exception.getMessage());
         } finally {
             System.out.flush();
             System.setOut(oldOut);

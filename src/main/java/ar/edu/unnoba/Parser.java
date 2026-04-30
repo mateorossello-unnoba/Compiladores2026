@@ -6,6 +6,7 @@
 package ar.edu.unnoba;
 
 import java_cup.runtime.*;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
@@ -414,12 +415,19 @@ public class Parser extends java_cup.runtime.lr_parser {
 
     // Método para manejar errores sintácticos recuperables
     public void syntax_error(Symbol symbol) {
-        System.err.println("Error Sintáctico: Línea " + (symbol.left) +  ", columna " + (symbol.right) + ". No se esperaba el componente: " + symbol.value + ".");
+        ComplexSymbol complexSymbol = (ComplexSymbol) symbol;
+        int linea = complexSymbol.getLeft().getLine();
+        int columna = complexSymbol.getLeft().getColumn();
+        String nombreToken = complexSymbol.getName();
+        System.err.println("Error Sintáctico: Línea " + linea +  ", columna " + columna + ". No se esperaba el componente: " + nombreToken + ".");
     }
 
     // Método para manejar errores sintácticos fatales
     public void unrecovered_syntax_error(Symbol symbol) throws java.lang.Exception {
-        System.err.println("Error Fatal: No se pudo recuperar del error en la línea " + (symbol.left) + ", columna " + (symbol.right) + ".");
+        ComplexSymbol complexSymbol = (ComplexSymbol) symbol;
+        int linea = complexSymbol.getLeft().getLine();
+        int columna = complexSymbol.getLeft().getColumn();
+        System.err.println("Error Fatal: No se pudo recuperar del error en la línea " + linea + ", columna " + columna + ".");
         throw new Exception("Error Sintáctico Fatal.");
     }
 
