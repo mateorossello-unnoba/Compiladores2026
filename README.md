@@ -6,18 +6,18 @@ Implementa un analizador léxico (JFlex) y un analizador sintáctico (CUP) para 
 ## Estructura del proyecto
 
 ```bash
-compilador/
+/ (Raíz del proyecto)
 ├── pom.xml # Configuración Maven (plugins JFlex y CUP)
 ├── libs/
-│ ├── java-cup-11b-runtime.jar # Librería runtime de CUP
-│ └── java-cup-11b.jar # Generador de parser (usado por Maven)
+│   ├── java-cup-11b-runtime.jar # Librería runtime de CUP
+│   └── java-cup-11b.jar # Generador de parser (usado por Maven)
 ├── src/main/
-│ ├── cup/parser.cup # Gramática (sintaxis)
-│ ├── flex/lexico.flex # Reglas léxicas (incluye indentación)
-│ └── java/ar/edu/unnoba/
-│ ├── App.java # Punto de entrada (lanza la GUI)
-│ ├── TablaSimbolos.java # Tabla de símbolos
-│ └── ui/VentanaCompilador.java # Ventana principal (editor + consola)
+│   ├── cup/parser.cup # Gramática (sintaxis)
+│   ├── flex/lexico.flex # Reglas léxicas (incluye indentación)
+│   └── java/ar/edu/unnoba/
+│       ├── App.java # Punto de entrada (lanza la GUI)
+│       ├── TablaSimbolos.java # Tabla de símbolos
+│       └── ui/VentanaCompilador.java # Ventana principal (editor + consola)
 └── target/ # Generado por Maven (Lexer.java, Parser.java, clases)
 ```
 
@@ -50,7 +50,7 @@ Este comando:
 
 ### Opción 1 – Usando Maven (más sencilla)
 
-Desde la **carpeta `compilador`** (donde está el `pom.xml`):
+Abrir una terminal en la **raíz del proyecto** (donde está el `pom.xml`) y ejecutar:
 
 ```bash
 mvn exec:java
@@ -58,7 +58,7 @@ mvn exec:java
 
 ### Opción 2 – Generar un JAR ejecutable
 
-Desde la carpeta compilador:
+Desde la misma ruta:
 
 ```bash
 mvn package
@@ -81,12 +81,13 @@ Al ejecutar se abre una ventana con dos áreas:
 
 Botones principales:
 
-| Botón           | Acción                                                                |
-| --------------- | --------------------------------------------------------------------- |
-| Cargar Archivo  | Abre un archivo .txt (ej. input.txt) y lo carga en el editor.         |
-| Guardar Archivo | Guarda el contenido del editor en un archivo.                         |
-| Limpiar Consola | Borra el contenido de la consola.                                     |
-| Compilar Código | Ejecuta el analizador léxico + sintáctico sobre el código del editor. |
+| Botón               | Acción                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| Cargar Archivo      | Abre un archivo .txt (ej. input.txt) y lo carga en el editor.                            |
+| Guardar Archivo     | Guarda el contenido del editor en un archivo.                                            |
+| Limpiar Consola     | Borra el contenido de la consola.                                                        |
+| Análisis Léxico     | Ejecuta únicamente el escáner (JFlex) y lista los tokens.                                |
+| Análisis Sintáctico | Ejecuta el analizador completo (CUP). Valida la gramática y genera la Tabla de Símbolos. |
 
 ## ¿Qué ocurre al compilar?
 
