@@ -25,4 +25,12 @@ public class Clausula extends Nodo {
 
         return resultado.toString();
     }
+
+    public Expresion getCondicion() {
+        return condicion;
+    }
+    
+    public List<Sentencia> getCuerpo() {
+        return cuerpo;
+    }
 }

@@ -1,16 +1,16 @@
-package ar.edu.unnoba.ast.declaraciones;
+package ar.edu.unnoba.ast;
 
 import ar.edu.unnoba.ast.expresiones.Identificador;
-import ar.edu.unnoba.ast.Nodo;
+import ar.edu.unnoba.Simbolo;
 import java.util.List;
 
 public class Declaracion extends Nodo {
-    private final String tipo;
+    private final Simbolo simbolo;
     private final List<Identificador> variables;
 
-    public Declaracion(String tipo, List<Identificador> variables) {
-        super ("DECLARACIÓN: " + tipo);
-        this.tipo = tipo;
+    public Declaracion(Simbolo simbolo, List<Identificador> variables) {
+        super(simbolo.getTipoDato().toString());
+        this.simbolo = simbolo;
         this.variables = variables;
     }
 
@@ -26,8 +26,8 @@ public class Declaracion extends Nodo {
         return resultado.toString();
     }
 
-    public String getTipo() {
-        return tipo;
+    public Simbolo getSimbolo() {
+        return simbolo;
     }
 
     public List<Identificador> getVariables() {

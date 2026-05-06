@@ -1,12 +1,13 @@
 package ar.edu.unnoba.ui;
 
+import ar.edu.unnoba.ast.Programa;
 import ar.edu.unnoba.Lexer;
 import ar.edu.unnoba.Parser;
 import ar.edu.unnoba.sym;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.Symbol;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -27,7 +28,7 @@ public class VentanaCompilador extends JFrame {
 
         // Configuración básica de la ventana
         setTitle("Compilador UNNOBA - 2026");
-        setSize(900, 650);
+        setSize(1366, 768);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
@@ -40,13 +41,15 @@ public class VentanaCompilador extends JFrame {
         JButton botonGuardar = crearBotonEstilizado("💾 Guardar Archivo", null);
         JButton botonLimpiar = crearBotonEstilizado("❌ Limpiar Consola", null);
         JButton botonCompilarLexico = crearBotonEstilizado("▶ Análisis Léxico", null); 
-        JButton botonCompilarSintactico = crearBotonEstilizado("▶ Análisis Sintáctico", null); 
+        JButton botonCompilarSintactico = crearBotonEstilizado("▶ Análisis Sintáctico", null);
+        JButton botonCompilarSemantico = crearBotonEstilizado("▶ Análisis Semántico", null);
 
         panelSuperior.add(botonCargar);
         panelSuperior.add(botonGuardar);
         panelSuperior.add(botonLimpiar);
         panelSuperior.add(botonCompilarLexico);
         panelSuperior.add(botonCompilarSintactico);
+        panelSuperior.add(botonCompilarSemantico);
 
         add(panelSuperior, BorderLayout.NORTH);
 
@@ -79,6 +82,7 @@ public class VentanaCompilador extends JFrame {
         botonLimpiar.addActionListener((ActionEvent event) -> limpiarConsola());
         botonCompilarLexico.addActionListener((ActionEvent event) -> analizarLexico());
         botonCompilarSintactico.addActionListener((ActionEvent event) -> analizarSintactico());
+        botonCompilarSemantico.addActionListener((ActionEvent event) -> analizarSemantico());
     }
 
     private JButton crearBotonEstilizado(String texto, Color fondo) {
@@ -203,11 +207,79 @@ public class VentanaCompilador extends JFrame {
 
             Lexer lexico = new Lexer(new StringReader(codigo));
             Parser parser = new Parser(lexico, new ComplexSymbolFactory());
-            parser.parse();
+
+            Symbol resultado = parser.parse();
+            Programa programa = (Programa) resultado.value;
+            generarArbolSintaxisAbstracta(programa);
 
             System.out.println("\n--- Análisis Sintáctico finalizado sin errores ---");
         } catch (Exception exception) {
             System.err.println("\n[ERROR SINTÁCTICO] " + exception.getMessage());
+        } finally {
+            System.out.flush();
+            System.setOut(oldOut);
+            System.setErr(oldErr);
+            areaConsola.setText(byteArrayOutputStream.toString());
+        }
+    }
+
+    private void generarArbolSintaxisAbstracta(Programa programa) {
+        try {
+            StringBuilder dotCode = new StringBuilder();
+            dotCode.append("graph AST {\n");
+            dotCode.append("  node [shape=box, style=filled, color=lightblue, fontname=\"Helvetica\"];\n");
+            dotCode.append("  edge [color=gray30];\n\n");
+
+            dotCode.append(programa.graficar("")); 
+            
+            dotCode.append("}\n");
+
+            File dotFile = new File("ast.dot");
+            try (FileWriter writer = new FileWriter(dotFile)) {
+                writer.write(dotCode.toString());
+            }
+
+            ProcessBuilder processBuilder = new ProcessBuilder("dot", "-Tpng", "ast.dot", "-o", "ast.png");
+            processBuilder.redirectErrorStream(true);
+            Process proceso = processBuilder.start();
+            proceso.waitFor();
+
+            System.out.println("[SISTEMA] Árbol de Sintaxis Abstracta generado según el formato requerido");
+        } catch (Exception exception) {
+            System.err.println("[SISTEMA] Se creó 'ast.dot', pero no se pudo generar la imagen. Corrobore que Graphviz esté instalado y definido en el PATH del sistema.");
+        }
+    }
+
+    private void analizarSemantico() {
+        String codigo = areaCodigo.getText();
+
+        if (codigo.trim().isEmpty()) {
+            areaConsola.setText("--- El editor está vacío ---");
+            return;
+        }
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(byteArrayOutputStream);
+        PrintStream oldOut = System.out;
+        PrintStream oldErr = System.err;
+        System.setOut(printStream);
+        System.setErr(printStream);
+
+        try {
+            System.out.println("--- Iniciando Análisis Semántico ---\n");
+
+            Lexer lexico = new Lexer(new StringReader(codigo));
+            Parser parser = new Parser(lexico, new ComplexSymbolFactory());
+            Symbol resultado = parser.parse();
+            Programa programa = (Programa) resultado.value;
+            generarArbolSintaxisAbstracta(programa);
+            
+            programa.chequearSemantica(parser.tablaSimbolos);
+
+            System.out.println("\n--- Análisis Semántico finalizado sin errores ---");
+        } catch (Exception exception) {
+            System.err.println("\n" + exception.getMessage());
+            System.err.println("\n[ERROR SEMÁNTICO] Error Semántico Fatal.");
         } finally {
             System.out.flush();
             System.setOut(oldOut);

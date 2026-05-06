@@ -2,6 +2,7 @@ package ar.edu.unnoba.ast.sentencias;
 
 import ar.edu.unnoba.ast.Expresion;
 import ar.edu.unnoba.ast.Sentencia;
+import ar.edu.unnoba.TablaSimbolos;
 
 public class Print extends Sentencia {
     private final Expresion expresion;
@@ -15,5 +16,10 @@ public class Print extends Sentencia {
     public String graficar(String idPadre) {
         String miId = this.getId();
         return super.graficar(idPadre) + expresion.graficar(miId);
+    }
+
+    @Override
+    public void chequearSemantica(TablaSimbolos tablaSimbolos, boolean dentroDeCiclo) throws Exception {
+        expresion.obtenerTipo(tablaSimbolos);
     }
 }
