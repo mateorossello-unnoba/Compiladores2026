@@ -255,7 +255,7 @@ Booleano = "true" | "false"
     // ------------------------------------------------------------------
     //  Cualquier carácter no reconocido es un error léxico
     // ------------------------------------------------------------------
-    [^] { throw new Error("Carácter inválido <" + yytext() + ">"); }
+    [^] { throw new RuntimeException("Carácter inválido <" + yytext() + ">"); }
 }
 
 // ==================================================================
@@ -272,7 +272,7 @@ Booleano = "true" | "false"
     "\\\""  { cadena.append('\"'); }
     "\\\\"  { cadena.append('\\'); }
 
-    <<EOF>> { throw new Error("Fin del archivo dentro de la cadena: \n" + cadena.toString()); }
+    <<EOF>> { throw new RuntimeException("Fin del archivo dentro de la cadena: \n" + cadena.toString()); }
     [^]     { cadena.append(yytext()); }
 }
 
@@ -283,6 +283,6 @@ Booleano = "true" | "false"
 <COMENTARIO_MULTILINEA> {
     "*}"    { yybegin(NORMAL); }
 
-    <<EOF>> { throw new Error("Fin del archivo dentro del comentario multilínea."); }
+    <<EOF>> { throw new RuntimeException("Fin del archivo dentro del comentario multilínea."); }
     [^]     { /* Ignorar cualquier carácter */ }
 }

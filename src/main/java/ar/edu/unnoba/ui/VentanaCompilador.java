@@ -175,10 +175,8 @@ public class VentanaCompilador extends JFrame {
             }
 
             System.out.println("\n--- Análisis Léxico finalizado sin errores ---");
-        } catch (Error error) {
-            System.err.println("\n[ERROR LÉXICO] " + error.getMessage());
         } catch (Exception exception) {
-            System.err.println("\nError: " + exception.getMessage());
+            System.err.println("\n[ERROR LÉXICO] " + exception.getMessage());
         } finally {
             System.out.flush();
             System.setOut(oldOut);
