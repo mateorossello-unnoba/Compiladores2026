@@ -41,15 +41,13 @@ public class VentanaCompilador extends JFrame {
         JButton botonGuardar = crearBotonEstilizado("💾 Guardar Archivo", null);
         JButton botonLimpiar = crearBotonEstilizado("❌ Limpiar Consola", null);
         JButton botonCompilarLexico = crearBotonEstilizado("▶ Análisis Léxico", null); 
-        JButton botonCompilarSintactico = crearBotonEstilizado("▶ Análisis Sintáctico", null);
-        JButton botonCompilarSemantico = crearBotonEstilizado("▶ Análisis Semántico", null);
+        JButton botonCompilarSintactico = crearBotonEstilizado("▶ Análisis Sintáctico y Semántico", null);
 
         panelSuperior.add(botonCargar);
         panelSuperior.add(botonGuardar);
         panelSuperior.add(botonLimpiar);
         panelSuperior.add(botonCompilarLexico);
         panelSuperior.add(botonCompilarSintactico);
-        panelSuperior.add(botonCompilarSemantico);
 
         add(panelSuperior, BorderLayout.NORTH);
 
@@ -81,8 +79,7 @@ public class VentanaCompilador extends JFrame {
         botonGuardar.addActionListener((ActionEvent event) -> guardarArchivo());
         botonLimpiar.addActionListener((ActionEvent event) -> limpiarConsola());
         botonCompilarLexico.addActionListener((ActionEvent event) -> analizarLexico());
-        botonCompilarSintactico.addActionListener((ActionEvent event) -> analizarSintactico());
-        botonCompilarSemantico.addActionListener((ActionEvent event) -> analizarSemantico());
+        botonCompilarSintactico.addActionListener((ActionEvent event) -> analizarSintacticoSemantico());
     }
 
     private JButton crearBotonEstilizado(String texto, Color fondo) {
@@ -185,7 +182,7 @@ public class VentanaCompilador extends JFrame {
         }
     }
 
-    private void analizarSintactico() {
+    private void analizarSintacticoSemantico() {
         String codigo = areaCodigo.getText();
 
         if (codigo.trim().isEmpty()) {
@@ -201,7 +198,7 @@ public class VentanaCompilador extends JFrame {
         System.setErr(printStream);
 
         try {
-            System.out.println("--- Iniciando Análisis Sintáctico ---\n");
+            System.out.println("--- Iniciando Análisis Sintáctico y Semántico ---\n");
 
             Lexer lexico = new Lexer(new StringReader(codigo));
             Parser parser = new Parser(lexico, new ComplexSymbolFactory());
@@ -210,9 +207,15 @@ public class VentanaCompilador extends JFrame {
             Programa programa = (Programa) resultado.value;
             generarArbolSintaxisAbstracta(programa);
 
-            System.out.println("\n--- Análisis Sintáctico finalizado sin errores ---");
+            System.out.println("\n--- Análisis Sintáctico y Semántico finalizados sin errores ---");
         } catch (Exception exception) {
-            System.err.println("\n[ERROR SINTÁCTICO] " + exception.getMessage());
+            if (exception.getMessage().contains("Error Sintáctico")) {
+                String mensajeLimpio = exception.getMessage().replaceAll(".*Error Sintáctico: ", "");
+                System.err.println("\n[ERROR SINTÁCTICO] " + mensajeLimpio);
+            } else {
+                String mensajeLimpio = exception.getMessage().replaceAll(".*Error Semántico: ", "");
+                System.err.println("\n[ERROR SEMÁNTICO] " + mensajeLimpio);
+            }
         } finally {
             System.out.flush();
             System.setOut(oldOut);
@@ -245,44 +248,6 @@ public class VentanaCompilador extends JFrame {
             System.out.println("[SISTEMA] Árbol de Sintaxis Abstracta generado según el formato requerido");
         } catch (Exception exception) {
             System.err.println("[SISTEMA] Se creó 'ast.dot', pero no se pudo generar la imagen. Corrobore que Graphviz esté instalado y definido en el PATH del sistema.");
-        }
-    }
-
-    private void analizarSemantico() {
-        String codigo = areaCodigo.getText();
-
-        if (codigo.trim().isEmpty()) {
-            areaConsola.setText("--- El editor está vacío ---");
-            return;
-        }
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(byteArrayOutputStream);
-        PrintStream oldOut = System.out;
-        PrintStream oldErr = System.err;
-        System.setOut(printStream);
-        System.setErr(printStream);
-
-        try {
-            System.out.println("--- Iniciando Análisis Semántico ---\n");
-
-            Lexer lexico = new Lexer(new StringReader(codigo));
-            Parser parser = new Parser(lexico, new ComplexSymbolFactory());
-            Symbol resultado = parser.parse();
-            Programa programa = (Programa) resultado.value;
-            generarArbolSintaxisAbstracta(programa);
-            
-            programa.chequearSemantica(parser.tablaSimbolos);
-
-            System.out.println("\n--- Análisis Semántico finalizado sin errores ---");
-        } catch (Exception exception) {
-            System.err.println("\n" + exception.getMessage());
-            System.err.println("\n[ERROR SEMÁNTICO] Error Semántico Fatal.");
-        } finally {
-            System.out.flush();
-            System.setOut(oldOut);
-            System.setErr(oldErr);
-            areaConsola.setText(byteArrayOutputStream.toString());
         }
     }
 }

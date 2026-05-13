@@ -1,9 +1,10 @@
 package ar.edu.unnoba.ast.expresiones.matematicas;
 
 import ar.edu.unnoba.ast.Expresion;
+import ar.edu.unnoba.ast.TipoDato;
 
 public class Resta extends OperacionMatematicaBinaria {
-    public Resta(Expresion izquierda, Expresion derecha) {
-        super("-", izquierda, derecha);
+    public Resta(TipoDato tipoDato, Expresion izquierda, Expresion derecha) {
+        super("-", tipoDato, izquierda, derecha);
     }
 }

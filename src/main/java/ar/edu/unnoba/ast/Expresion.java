@@ -1,16 +1,13 @@
 package ar.edu.unnoba.ast;
 
-import ar.edu.unnoba.TablaSimbolos;
-
 public abstract class Expresion extends Nodo {
     protected TipoDato tipoDato;
     protected int dimensionArreglo = 0;
 
-    public Expresion(String etiqueta) {
+    public Expresion(String etiqueta, TipoDato tipoDato) {
         super(etiqueta);
+        this.tipoDato = tipoDato;
     }
-
-    public abstract void obtenerTipo(TablaSimbolos tablaSimbolos) throws Exception;
 
     public TipoDato getTipoDato() {
         return tipoDato;
@@ -18,5 +15,9 @@ public abstract class Expresion extends Nodo {
 
     public int getDimensionArreglo() {
         return dimensionArreglo;
+    }
+
+    public void setDimensionArreglo(int dimensionArreglo) {
+        this.dimensionArreglo = dimensionArreglo;
     }
 }

@@ -10,12 +10,15 @@ import ar.edu.unnoba.ast.expresiones.matematicas.*;
 import ar.edu.unnoba.ast.sentencias.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 // ---------------------------------------------------------
 //  Código Java incrustado para el Parser
 // ---------------------------------------------------------
 parser code {:
     public TablaSimbolos tablaSimbolos = new TablaSimbolos();
+    
+    public int cantidadCiclosActivos = 0;
 
     // Método para manejar errores sintácticos recuperables
     public void syntax_error(Symbol symbol) {
@@ -164,24 +167,24 @@ sentencias ::= sentencias:lista sentencia:s {:
             RESULT = lista;
         :} ;
 
-sentencia ::= sentencia_asignacion:s {:
-            RESULT = s;
-        :} | sentencia_print:s {:
-            RESULT = s;
-        :} | sentencia_control:s {:
-            RESULT = s;
-        :} | sentencia_if:s {:
-            RESULT = s;
-        :} | sentencia_while:s {:
-            RESULT = s;
-        :} ;
+sentencia ::= sentencia_asignacion:s {: RESULT = s; :}
+        | sentencia_print:s {: RESULT = s; :}
+        | sentencia_control:s {: RESULT = s; :}
+        | sentencia_if:s {: RESULT = s; :}
+        | sentencia_while:s {: RESULT = s; :} ;
 
 sentencia_asignacion ::= IDENTIFICADOR:id ASIGNACION expr:e {:
+            TipoDato tipoVariable = ValidadorSemantico.verificarExistenciaVariable(id, parser.tablaSimbolos);
+            Simbolo simboloVariable = parser.tablaSimbolos.obtenerSimbolo(id);
+            ValidadorSemantico.verificarAsignacion(tipoVariable, e.getTipoDato(), simboloVariable.getDimensionArreglo(), e.getDimensionArreglo());
             System.out.println("[PARSER] REGLA: sentencia_asignacion -> IDENTIFICADOR ASIGNACION expr");
-            RESULT = new Asignacion(new Identificador(id), e);
+            RESULT = new Asignacion(new Identificador(id, tipoVariable, simboloVariable.getDimensionArreglo()), e);
         :} | IDENTIFICADOR:id CORCHETE_IZQ expr:idx CORCHETE_DER ASIGNACION expr:e {:
+            TipoDato tipoVariable = ValidadorSemantico.verificarExistenciaVariable(id, parser.tablaSimbolos);
+            Simbolo simboloVariable = parser.tablaSimbolos.obtenerSimbolo(id);
+            ValidadorSemantico.verificarAsignacionArreglo(id, tipoVariable, idx.getTipoDato(), e.getTipoDato());
             System.out.println("[PARSER] REGLA: sentencia_asignacion -> IDENTIFICADOR [ expr ] ASIGNACION expr");
-            RESULT = new AsignacionArreglo(new Identificador(id), idx, e);
+            RESULT = new AsignacionArreglo(new Identificador(id, tipoVariable, simboloVariable.getDimensionArreglo()), idx, e);
         :} ;
 
 sentencia_print ::= PRINT PARENTESIS_IZQ expr:e PARENTESIS_DER {:
@@ -190,41 +193,55 @@ sentencia_print ::= PRINT PARENTESIS_IZQ expr:e PARENTESIS_DER {:
         :} | PRINT PARENTESIS_IZQ CADENA:c PARENTESIS_DER {:
             System.out.println("[PARSER] REGLA: sentencia_print -> PRINT ( CADENA )");
             parser.tablaSimbolos.agregarString(c);
-            RESULT = new Print(new Constante(c));
+            RESULT = new Print(new Constante(c, null, 0));
         :} ;
 
 sentencia_control ::= BREAK {:
+            ValidadorSemantico.verificarBreakContinue(parser.cantidadCiclosActivos, "BREAK");
             System.out.println("[PARSER] REGLA: sentencia_control -> BREAK");
             RESULT = new Break();
         :} | CONTINUE {:
+            ValidadorSemantico.verificarBreakContinue(parser.cantidadCiclosActivos, "CONTINUE");
             System.out.println("[PARSER] REGLA: sentencia_control -> CONTINUE");
             RESULT = new Continue();
         :} ;
 
 sentencia_if ::= IF expr:cond INDENT sentencias:cuerpo DEDENT lista_elif:elifs bloque_else:belse {:
+            ValidadorSemantico.verificarCondicionEstructuraControl(cond.getTipoDato(), "IF");
             System.out.println("[PARSER] REGLA: sentencia_if");
-            RESULT = new If(new Clausula("BLOQUE_IF", cond, cuerpo), elifs, belse);
+
+            List<Sentencia> elseActual = belse;
+
+            Collections.reverse(elifs);
+            for (Clausula clausula : elifs) {
+                If ifAnidado = new If(clausula.condicion, clausula.cuerpo, elseActual);
+                elseActual = new ArrayList<Sentencia>();
+                elseActual.add(ifAnidado);
+            }
+
+            RESULT = new If(cond, cuerpo, elseActual);
         :} ;
 
 lista_elif ::= lista_elif:lista ELIF expr:cond INDENT sentencias:cuerpo DEDENT {:
+            ValidadorSemantico.verificarCondicionEstructuraControl(cond.getTipoDato(), "ELIF");
             lista.add(new Clausula("BLOQUE_ELIF", cond, cuerpo));
             RESULT = lista;
         :} | /* Vacío */ {:
             RESULT = new ArrayList<Clausula>();
         :} ;
 
-bloque_else ::= ELSE INDENT sentencias:s DEDENT {:
-            RESULT = s;
-        :} | /* Vacío */ {:
-            RESULT = null;
-        :} ;
+bloque_else ::= ELSE INDENT sentencias:s DEDENT {: RESULT = s; :}
+        | /* Vacío */ {: RESULT = null; :} ;
 
-sentencia_while ::= WHILE expr:cond INDENT sentencias:cuerpo DEDENT lista_alt_while:alts {:
+sentencia_while ::= WHILE {: parser.cantidadCiclosActivos++; :} expr:cond INDENT sentencias:cuerpo DEDENT lista_alt_while:alts {:
+            parser.cantidadCiclosActivos--;
+            ValidadorSemantico.verificarCondicionEstructuraControl(cond.getTipoDato(), "WHILE");
             System.out.println("[PARSER] REGLA: sentencia_while");
             RESULT = new While(new Clausula("BLOQUE_WHILE", cond, cuerpo), alts);
         :} ;
 
 lista_alt_while ::= lista_alt_while:lista ALT_WHILE expr:cond INDENT sentencias:cuerpo DEDENT {:
+            ValidadorSemantico.verificarCondicionEstructuraControl(cond.getTipoDato(), "ALT_WHILE");
             lista.add(new Clausula("BLOQUE_ALT_WHILE", cond, cuerpo));
             RESULT = lista;
         :} | /* Vacío */ {:
@@ -233,18 +250,21 @@ lista_alt_while ::= lista_alt_while:lista ALT_WHILE expr:cond INDENT sentencias:
 
 // --- EXPRESIONES LÓGICAS (OR) ---
 expr ::= expr_and:e1 DISYUNCION expr:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionLogicaBinaria("||", e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr -> expr_and DISYUNCION expr");
             RESULT = new Disyuncion(e1, e2);
         :} | expr_and:e {: RESULT = e; :} ;
 
 // --- EXPRESIONES LÓGICAS (AND) ---
 expr_and ::= expr_not:e1 CONJUNCION expr_and:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionLogicaBinaria("&&", e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_and -> expr_not CONJUNCION expr_and");
             RESULT = new Conjuncion(e1, e2);
         :} | expr_not:e {: RESULT = e; :} ;
 
 // --- EXPRESIONES LÓGICAS (NOT) ---
 expr_not ::= NEGACION expr_not:e {:
+            TipoDato resultado = ValidadorSemantico.verificarNegacionLogica(e.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_not -> NEGACION expr_not");
             RESULT = new Negacion(e);
         :} | expr_rel:e {: RESULT = e; :} ;
@@ -252,21 +272,27 @@ expr_not ::= NEGACION expr_not:e {:
 // --- EXPRESIONES RELACIONALES ---
 // (No son asociativas, por lo que fuerzan a que se compare un valor aritmético con otro)
 expr_rel ::= expr_arit:e1 IGUAL expr_arit:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria("==", e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit IGUAL expr_arit");
             RESULT = new Igual(e1, e2);
         :} | expr_arit:e1 DESIGUAL expr_arit:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria("!=", e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit DESIGUAL expr_arit");
             RESULT = new Desigual(e1, e2);
         :} | expr_arit:e1 MAYOR_IGUAL expr_arit:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria(">=", e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit MAYOR_IGUAL expr_arit");
             RESULT = new MayorIgual(e1, e2);
         :} | expr_arit:e1 MENOR_IGUAL expr_arit:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria("<=", e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit MENOR_IGUAL expr_arit");
             RESULT = new MenorIgual(e1, e2);
         :} | expr_arit:e1 MAYOR expr_arit:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria(">", e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit MAYOR expr_arit");
             RESULT = new Mayor(e1, e2);
         :} | expr_arit:e1 MENOR expr_arit:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria("<", e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit MENOR expr_arit");
             RESULT = new Menor(e1, e2);
         :} | expr_arit:e {: RESULT = e; :} ;
@@ -274,48 +300,68 @@ expr_rel ::= expr_arit:e1 IGUAL expr_arit:e2 {:
 // --- EXPRESIONES ARITMÉTICAS (+, -) ---
 // (Asociativas por izquierda)
 expr_arit ::= expr_arit:e1 SUMA term:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_arit -> expr_arit SUMA term");
-            RESULT = new Suma(e1, e2);
+            Suma suma = new Suma(resultado, e1, e2);
+            suma.setDimensionArreglo(e1.getTipoDato() == TipoDato.ARRAY ? e1.getDimensionArreglo() : e2.getDimensionArreglo());
+            RESULT = suma;
         :} | expr_arit:e1 RESTA term:e2 {:
+            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_arit -> expr_arit RESTA term");
-            RESULT = new Resta(e1, e2);
+            Resta resta = new Resta(resultado, e1, e2);
+            resta.setDimensionArreglo(e1.getTipoDato() == TipoDato.ARRAY ? e1.getDimensionArreglo() : e2.getDimensionArreglo());
+            RESULT = resta;
         :} | term:e {: RESULT = e; :} ;
 
 // --- TÉRMINOS (*, /) ---
 // (Tienen mayor precedencia que la suma o resta)
 term ::= term:e1 MULTIPLICACION factor:e2 {: 
+            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: term -> term MULTIPLICACION factor");
-            RESULT = new Multiplicacion(e1, e2);
+            Multiplicacion multiplicacion = new Multiplicacion(resultado, e1, e2);
+            multiplicacion.setDimensionArreglo(e1.getTipoDato() == TipoDato.ARRAY ? e1.getDimensionArreglo() : e2.getDimensionArreglo());
+            RESULT = multiplicacion;
         :} | term:e1 DIVISION factor:e2 {: 
+            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato());
             System.out.println("[PARSER] REGLA: term -> term DIVISION factor");
-            RESULT = new Division(e1, e2);
+            Division division = new Division(resultado, e1, e2);
+            division.setDimensionArreglo(e1.getTipoDato() == TipoDato.ARRAY ? e1.getDimensionArreglo() : e2.getDimensionArreglo());
+            RESULT = division;
         :} | factor:e {: RESULT = e; :} ;
 
 // --- FACTORES (Valores atómicos y máxima precedencia) ---
 factor ::= RESTA factor:e {:
+            TipoDato resultado = ValidadorSemantico.verificarMenosUnario(e.getTipoDato());
+            MenosUnario menosUnario = new MenosUnario(resultado, e);
+            menosUnario.setDimensionArreglo(e.getDimensionArreglo());
             System.out.println("[PARSER] REGLA: factor -> MENOS_UNARIO factor");
-            RESULT = new MenosUnario(e);
+            RESULT = menosUnario;
         :} | PARENTESIS_IZQ expr:e PARENTESIS_DER {:
             System.out.println("[PARSER] REGLA: factor -> ( expr )");
             RESULT = e;
         :} | IDENTIFICADOR:id {:
+            TipoDato tipo = ValidadorSemantico.verificarExistenciaVariable(id, parser.tablaSimbolos);
+            Simbolo simbolo = parser.tablaSimbolos.obtenerSimbolo(id);
             System.out.println("[PARSER] REGLA: factor -> IDENTIFICADOR");
-            RESULT = new Identificador(id);
+            RESULT = new Identificador(id, tipo, simbolo.getDimensionArreglo());
         :} | IDENTIFICADOR:id CORCHETE_IZQ expr:e CORCHETE_DER {:
+            TipoDato tipoVariable = ValidadorSemantico.verificarExistenciaVariable(id, parser.tablaSimbolos);
+            TipoDato resultado = ValidadorSemantico.verificarAccesoArreglo(id, tipoVariable, e.getTipoDato());
             System.out.println("[PARSER] REGLA: factor -> IDENTIFICADOR [ expr ]");
-            RESULT = new AccesoArreglo(new Identificador(id), e);
+            RESULT = new AccesoArreglo(new Identificador(id, tipoVariable, 0), e);
         :} | ENTERO:e {:
             System.out.println("[PARSER] REGLA: factor -> ENTERO");
-            RESULT = new Constante(e);
+            RESULT = new Constante(e, TipoDato.INT, 0);
         :} | FLOTANTE:f {:
             System.out.println("[PARSER] REGLA: factor -> FLOTANTE");
-            RESULT = new Constante(f);
+            RESULT = new Constante(f, TipoDato.FLOAT, 0);
         :} | BOOLEANO:b {:
             System.out.println("[PARSER] REGLA: factor -> BOOLEANO");
-            RESULT = new Constante(b);
+            RESULT = new Constante(b, TipoDato.BOOLEAN, 0);
         :} | ARREGLO:a {:
+            int dimension = ValidadorSemantico.calcularDimensionArregloConstante(a);
             System.out.println("[PARSER] REGLA: factor -> ARREGLO");
-            RESULT = new Constante(a);
+            RESULT = new Constante(a, TipoDato.ARRAY, dimension);
         :} | expr_moda:m {:
             RESULT = m;
         :} | READ_INT PARENTESIS_IZQ PARENTESIS_DER {:
@@ -330,6 +376,7 @@ factor ::= RESTA factor:e {:
         :} ;
 
 expr_moda ::= MODA PARENTESIS_IZQ expr:e PARENTESIS_DER {:
+            TipoDato resultado = ValidadorSemantico.verificarModa(e.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_moda -> MODA ( expr )");
             RESULT = new Moda(e);
         :} ;

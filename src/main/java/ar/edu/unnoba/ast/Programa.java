@@ -1,6 +1,5 @@
 package ar.edu.unnoba.ast;
 
-import ar.edu.unnoba.TablaSimbolos;
 import java.util.List;
 
 public class Programa extends Nodo {
@@ -29,11 +28,5 @@ public class Programa extends Nodo {
         }
         
         return resultado.toString();
-    }
-
-    public void chequearSemantica(TablaSimbolos tablaSimbolos) throws Exception {
-        for (Sentencia sentencia : sentencias) {
-            sentencia.chequearSemantica(tablaSimbolos, false);
-        }
     }
 }
