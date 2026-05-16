@@ -31,4 +31,12 @@ public class While extends Sentencia {
         
         return resultado.toString();
     }
+
+    public Clausula getBloquePrincipal() {
+        return bloquePrincipal;
+    }
+
+    public List<Clausula> getBloquesAltWhile() {
+        return bloquesAltWhile;
+    }
 }

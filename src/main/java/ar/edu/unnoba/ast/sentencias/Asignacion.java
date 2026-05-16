@@ -19,4 +19,12 @@ public class Asignacion extends Sentencia {
         String miId = this.getId();
         return super.graficar(idPadre) + variable.graficar(miId) + valor.graficar(miId);
     }
+
+    public Identificador getVariable() {
+        return variable;
+    }
+
+    public Expresion getValor() {
+        return valor;
+    }
 }

@@ -16,4 +16,8 @@ public class Print extends Sentencia {
         String miId = this.getId();
         return super.graficar(idPadre) + expresion.graficar(miId);
     }
+
+    public Expresion getExpresion() {
+        return expresion;
+    }
 }

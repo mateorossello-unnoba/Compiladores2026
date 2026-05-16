@@ -2,13 +2,14 @@ package ar.edu.unnoba.ui;
 
 import ar.edu.unnoba.ast.Programa;
 import ar.edu.unnoba.Lexer;
+import ar.edu.unnoba.llvm.GeneradorCodigo;
 import ar.edu.unnoba.Parser;
 import ar.edu.unnoba.sym;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.*;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
-import java.io.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -42,13 +43,14 @@ public class VentanaCompilador extends JFrame {
         JButton botonLimpiar = crearBotonEstilizado("❌ Limpiar Consola", null);
         JButton botonCompilarLexico = crearBotonEstilizado("▶ Análisis Léxico", null); 
         JButton botonCompilarSintactico = crearBotonEstilizado("▶ Análisis Sintáctico y Semántico", null);
+        JButton botonGenerarCodigo = crearBotonEstilizado("▶ Generar Código LLVM", null);
 
         panelSuperior.add(botonCargar);
         panelSuperior.add(botonGuardar);
         panelSuperior.add(botonLimpiar);
         panelSuperior.add(botonCompilarLexico);
         panelSuperior.add(botonCompilarSintactico);
-
+        panelSuperior.add(botonGenerarCodigo);
         add(panelSuperior, BorderLayout.NORTH);
 
         // --- ÁREA CENTRAL (Editor de Código) ---
@@ -80,6 +82,7 @@ public class VentanaCompilador extends JFrame {
         botonLimpiar.addActionListener((ActionEvent event) -> limpiarConsola());
         botonCompilarLexico.addActionListener((ActionEvent event) -> analizarLexico());
         botonCompilarSintactico.addActionListener((ActionEvent event) -> analizarSintacticoSemantico());
+        botonGenerarCodigo.addActionListener((ActionEvent event) -> generarCodigo());
     }
 
     private JButton crearBotonEstilizado(String texto, Color fondo) {
@@ -245,9 +248,53 @@ public class VentanaCompilador extends JFrame {
             Process proceso = processBuilder.start();
             proceso.waitFor();
 
-            System.out.println("[SISTEMA] Árbol de Sintaxis Abstracta generado según el formato requerido");
+            System.out.println("[SISTEMA] Árbol de Sintaxis Abstracta generado según el formato requerido.");
         } catch (Exception exception) {
             System.err.println("[SISTEMA] Se creó 'ast.dot', pero no se pudo generar la imagen. Corrobore que Graphviz esté instalado y definido en el PATH del sistema.");
+        }
+    }
+
+    private void generarCodigo() {
+        String codigo = areaCodigo.getText();
+
+        if (codigo.trim().isEmpty()) {
+            areaConsola.setText("--- El editor está vacío ---");
+            return;
+        }
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(byteArrayOutputStream);
+        PrintStream oldOut = System.out;
+        PrintStream oldErr = System.err;
+        System.setOut(printStream);
+        System.setErr(printStream);
+
+        try {
+            System.out.println("--- Iniciando Generación de Código LLVM ---\n");
+
+            Lexer lexico = new Lexer(new StringReader(codigo));
+            Parser parser = new Parser(lexico, new ComplexSymbolFactory());
+
+            Symbol resultado = parser.parse();
+            Programa programa = (Programa) resultado.value;
+            GeneradorCodigo generadorCodigo = new GeneradorCodigo();
+            String codigoFinal = generadorCodigo.generarPrograma(programa);
+            
+            File archivoSalida = new File("programa.ll");
+            try (FileWriter writer = new FileWriter(archivoSalida)) {
+                writer.write(codigoFinal);
+            }
+
+            System.out.println("[SISTEMA] Código LLVM generado y guardado en 'programa.ll' satisfactoriamente.");
+
+            System.out.println("\n--- Generación de Código LLVM finalizada sin errores ---");
+        } catch (Exception exception) {
+            System.err.println("\n[ERROR DE COMPILACIÓN] " + exception.getMessage());
+        } finally {
+            System.out.flush();
+            System.setOut(oldOut);
+            System.setErr(oldErr);
+            areaConsola.setText(byteArrayOutputStream.toString());
         }
     }
 }

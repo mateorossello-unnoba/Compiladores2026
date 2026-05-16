@@ -21,4 +21,16 @@ public class AsignacionArreglo extends Sentencia {
         String miId = this.getId();
         return super.graficar(idPadre) + identificador.graficar(miId) + indice.graficar(miId) + valor.graficar(miId);
     }
+
+    public Identificador getIdentificador() {
+        return identificador;
+    }
+
+    public Expresion getIndice() {
+        return indice;
+    }
+
+    public Expresion getValor() {
+        return valor;
+    }
 }

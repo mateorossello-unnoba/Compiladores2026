@@ -18,4 +18,12 @@ public class AccesoArreglo extends Expresion {
         String miId = this.getId();
         return super.graficar(idPadre) + identificador.graficar(miId) + indice.graficar(miId);
     }
+
+    public Identificador getIdentificador() {
+        return identificador;
+    }
+
+    public Expresion getIndice() {
+        return indice;
+    }
 }

@@ -29,4 +29,12 @@ public class Programa extends Nodo {
         
         return resultado.toString();
     }
+
+    public List<Declaracion> getDeclaraciones() {
+        return declaraciones;
+    }
+
+    public List<Sentencia> getSentencias() {
+        return sentencias;
+    }
 }

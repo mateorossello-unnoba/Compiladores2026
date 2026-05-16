@@ -862,7 +862,7 @@ class CUP$Parser$actions {
 		
             System.out.println("[PARSER] REGLA: sentencia_print -> PRINT ( CADENA )");
             parser.tablaSimbolos.agregarString(c);
-            RESULT = new Print(new Constante(c, null, 0));
+            RESULT = new Print(new Constante(c, TipoDato.STRING, 0));
         
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("sentencia_print",12, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1437,8 +1437,9 @@ class CUP$Parser$actions {
 		
             TipoDato tipoVariable = ValidadorSemantico.verificarExistenciaVariable(id, parser.tablaSimbolos);
             TipoDato resultado = ValidadorSemantico.verificarAccesoArreglo(id, tipoVariable, e.getTipoDato());
+            Simbolo simbolo = parser.tablaSimbolos.obtenerSimbolo(id);
             System.out.println("[PARSER] REGLA: factor -> IDENTIFICADOR [ expr ]");
-            RESULT = new AccesoArreglo(new Identificador(id, tipoVariable, 0), e);
+            RESULT = new AccesoArreglo(new Identificador(id, tipoVariable, simbolo.getDimensionArreglo()), e);
         
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("factor",24, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }

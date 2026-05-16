@@ -1,0 +1,21 @@
+NOMBRE                         | TOKEN      | TIPO            | VALOR                                              | LONGITUD  
+-------------------------------------------------------------------------------------------------------------------------------
+iterador                       | ID         | INT             | -                                                  | -         
+limite                         | ID         | INT             | -                                                  | -         
+valor_leido                    | ID         | INT             | -                                                  | -         
+acumulador                     | ID         | FLOAT           | -                                                  | -         
+promedio                       | ID         | FLOAT           | -                                                  | -         
+m                              | ID         | FLOAT           | -                                                  | -         
+bandera                        | ID         | BOOLEAN         | -                                                  | -         
+es_mayor                       | ID         | BOOLEAN         | -                                                  | -         
+arreglo_datos                  | ID         | ARRAY[5]        | -                                                  | -         
+arreglo_vacio                  | ID         | ARRAY[5]        | -                                                  | -         
+-                              | CTE_STR    | -               | Iniciando pruebas del compilador UNNOBA            | 39        
+-                              | CTE_STR    | -               | Ingrese un numero entero para comenzar:            | 39        
+-                              | CTE_STR    | -               | El valor supera el limite                          | 25        
+-                              | CTE_STR    | -               | El valor es exactamente igual al limite            | 39        
+-                              | CTE_STR    | -               | El valor esta por debajo del limite                | 35        
+-                              | CTE_STR    | -               | Acumulador alcanzo el maximo                       | 28        
+-                              | CTE_STR    | -               | Ajustando bandera...                               | 20        
+-                              | CTE_STR    | -               | Calculando la moda del arreglo de datos:           | 40        
+-                              | CTE_STR    | -               | Fin de las operaciones con exito                   | 32        

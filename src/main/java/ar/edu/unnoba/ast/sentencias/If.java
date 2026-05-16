@@ -36,4 +36,16 @@ public class If extends Sentencia {
         
         return resultado.toString();
     }
+
+    public Expresion getCondicion() {
+        return condicion;
+    }
+
+    public List<Sentencia> getBloqueThen() {
+        return bloqueThen;
+    }
+
+    public List<Sentencia> getBloqueElse() {
+        return bloqueElse;
+    }
 }
