@@ -94,7 +94,7 @@ etiqueta.4:
 etiqueta.6:
   call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.10, i32 0, i32 0), i8* getelementptr inbounds ([36 x i8], [36 x i8]* @.str.9, i32 0, i32 0))
   %puntero.28 = xor i1 true, false
-  %puntero.29 = xor i1 %puntero.28, true
+  %puntero.29 = xor i1 true, %puntero.28
   store i1 %puntero.29, i1* %es_mayor
   br label %etiqueta.5
 
@@ -144,31 +144,96 @@ etiqueta.13:
   call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.14, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str.13, i32 0, i32 0))
   %puntero.49 = xor i1 true, false
   store i1 %puntero.49, i1* %es_mayor
-  br label %etiqueta.7
-  br label %etiqueta.7
+  br label %etiqueta.10
+  br label %etiqueta.10
 
 etiqueta.8:
   call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.16, i32 0, i32 0), i8* getelementptr inbounds ([41 x i8], [41 x i8]* @.str.15, i32 0, i32 0))
-  store double null, double* %m
-  %puntero.51 = load double, double* %m
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.17, i32 0, i32 0), double %puntero.51)
-  %puntero.52 = load double, double* %acumulador
-  %puntero.53 = fadd double 0.0, 5.
-  %puntero.54 = fdiv double %puntero.52, %puntero.53
-  store double %puntero.54, double* %promedio
-  %puntero.55 = load double, double* %promedio
-  %puntero.56 = load double, double* %m
-  %puntero.57 = fcmp one double %puntero.55, %puntero.56
-  %puntero.58 = load double, double* %acumulador
-  %puntero.59 = fadd double 0.0, 0.
-  %puntero.60 = fcmp ole double %puntero.58, %puntero.59
-  %puntero.61 = or i1 %puntero.57, %puntero.60
-  br i1 %puntero.61, label %etiqueta.14, label %etiqueta.15
+  %puntero.51 = load double*, double** %arreglo_datos
+  ; --- INICIO ALGORITMO MODA ---
+  %puntero.52 = alloca i32
+  %puntero.53 = alloca double
+  %puntero.54 = alloca i32
+  %puntero.55 = alloca i32
+  %puntero.56 = alloca i32
+  store i32 0, i32* %puntero.52
+  store double 0.0, double* %puntero.53
+  store i32 0, i32* %puntero.54
+  br label %etiqueta.14
 
 etiqueta.14:
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.19, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.18, i32 0, i32 0))
-  br label %etiqueta.15
+  %puntero.57 = load i32, i32* %puntero.54
+  %puntero.58 = icmp slt i32 %puntero.57, 5
+  br i1 %puntero.58, label %etiqueta.15, label %etiqueta.23
 
 etiqueta.15:
+  %puntero.59 = getelementptr [5 x double], [5 x double]* %puntero.51, i32 0, i32 %puntero.57
+  %puntero.60 = load double, double* %puntero.59
+  store i32 0, i32* %puntero.56
+  store i32 0, i32* %puntero.55
+  br label %etiqueta.16
+
+etiqueta.16:
+  %puntero.61 = load i32, i32* %puntero.55
+  %puntero.62 = icmp slt i32 %puntero.61, 5
+  br i1 %puntero.62, label %etiqueta.17, label %etiqueta.19
+
+etiqueta.17:
+  %puntero.63 = getelementptr [5 x double], [5 x double]* %puntero.51, i32 0, i32 %puntero.61
+  %puntero.64 = load double, double* %puntero.63
+  %puntero.65 = fcmp oeq double %puntero.60, %puntero.64
+  br i1 %puntero.65, label %etiqueta.18, label %etiqueta.22
+
+etiqueta.18:
+  %puntero.66 = load i32, i32* %puntero.56
+  %puntero.67 = add i32 %puntero.66, 1
+  store i32 %puntero.67, i32* %puntero.56
+  br label %etiqueta.22
+
+etiqueta.19:
+  %puntero.68 = load i32, i32* %puntero.56
+  %puntero.69 = load i32, i32* %puntero.52
+  %puntero.70 = icmp sgt i32 %puntero.68, %puntero.69
+  br i1 %puntero.70, label %etiqueta.20, label %etiqueta.21
+
+etiqueta.20:
+  store i32 %puntero.68, i32* %puntero.52
+  store double %puntero.60, double* %puntero.53
+  br label %etiqueta.21
+
+etiqueta.21:
+  %puntero.71 = add i32 %puntero.57, 1
+  store i32 %puntero.71, i32* %puntero.54
+  br label %etiqueta.14
+
+etiqueta.22:
+  %puntero.72 = add i32 %puntero.61, 1
+  store i32 %puntero.72, i32* %puntero.55
+  br label %etiqueta.16
+
+etiqueta.23:
+  %puntero.73 = load double, double* %puntero.53
+  ; --- FIN ALGORITMO MODA ---
+  store double %puntero.73, double* %m
+  %puntero.74 = load double, double* %m
+  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.17, i32 0, i32 0), double %puntero.74)
+  %puntero.75 = load double, double* %acumulador
+  %puntero.76 = fadd double 0.0, 5.
+  %puntero.77 = fdiv double %puntero.75, %puntero.76
+  store double %puntero.77, double* %promedio
+  %puntero.78 = load double, double* %promedio
+  %puntero.79 = load double, double* %m
+  %puntero.80 = fcmp one double %puntero.78, %puntero.79
+  %puntero.81 = load double, double* %acumulador
+  %puntero.82 = fadd double 0.0, 0.
+  %puntero.83 = fcmp ole double %puntero.81, %puntero.82
+  %puntero.84 = or i1 %puntero.80, %puntero.83
+  br i1 %puntero.84, label %etiqueta.24, label %etiqueta.25
+
+etiqueta.24:
+  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.19, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.18, i32 0, i32 0))
+  br label %etiqueta.25
+
+etiqueta.25:
   ret i32 0
 }

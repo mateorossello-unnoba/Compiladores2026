@@ -278,7 +278,7 @@ public class VentanaCompilador extends JFrame {
             Symbol resultado = parser.parse();
             Programa programa = (Programa) resultado.value;
             GeneradorCodigo generadorCodigo = new GeneradorCodigo();
-            String codigoFinal = generadorCodigo.generarPrograma(programa);
+            String codigoFinal = programa.generarCodigo(generadorCodigo);
             
             File archivoSalida = new File("programa.ll");
             try (FileWriter writer = new FileWriter(archivoSalida)) {
