@@ -1,24 +1,32 @@
-# Compilador - Analizador Léxico y Sintáctico (UNNOBA 2026)
+# Compilador - Segunda Entrega (UNNOBA 2026)
 
-Primera entrega del trabajo práctico de Compiladores.  
-Implementa un analizador léxico (JFlex) y un analizador sintáctico (CUP) para el lenguaje definido en la consigna, con manejo de indentación significativa, tabla de símbolos e interfaz gráfica.
+Este proyecto es la segunda entrega del trabajo práctico de Compiladores. Implementa un compilador completo para el lenguaje definido en el enunciado, incluyendo:
+- Análisis léxico (JFlex) con manejo de indentación significativa.
+- Análisis sintáctico (CUP) con recuperación de errores.
+- Tabla de símbolos (ts.txt) con tipos y dimensiones de arreglos.
+- Árbol de sintaxis abstracta (AST) con generación de archivos .dot y .png (Graphviz).
+- Generación de código intermedio LLVM IR (programa.ll).
+- Compilación y ejecución del programa generado (mediante clang).
+- Interfaz gráfica con editor, consola y menú para mostrar el código IR.
 
 ## Estructura del proyecto
 
 ```bash
 / (Raíz del proyecto)
-├── pom.xml # Configuración Maven (plugins JFlex y CUP)
+├── pom.xml                          # Configuración Maven (plugins JFlex, CUP)
 ├── libs/
-│   ├── java-cup-11b-runtime.jar # Librería runtime de CUP
-│   └── java-cup-11b.jar # Generador de parser (usado por Maven)
+│   ├── java-cup-11b-runtime.jar     # Runtime de CUP
+│   └── java-cup-11b.jar             # Generador de parser
 ├── src/main/
-│   ├── cup/parser.cup # Gramática (sintaxis)
-│   ├── flex/lexico.flex # Reglas léxicas (incluye indentación)
+│   ├── cup/parser.cup               # Gramática (sintaxis + acciones semánticas)
+│   ├── flex/lexico.flex             # Reglas léxicas (incluye indentación)
 │   └── java/ar/edu/unnoba/
-│       ├── App.java # Punto de entrada (lanza la GUI)
-│       ├── TablaSimbolos.java # Tabla de símbolos
-│       └── ui/VentanaCompilador.java # Ventana principal (editor + consola)
-└── target/ # Generado por Maven (Lexer.java, Parser.java, clases)
+│       ├── App.java                 # Punto de entrada (lanza GUI)
+│       ├── TablaSimbolos.java       # Tabla de símbolos
+│       ├── ast/                     # Nodos del AST (expresiones, sentencias, etc.)
+│       ├── llvm/                    # Generador de código LLVM
+│       └── ui/VentanaCompilador.java # Ventana principal
+└── target/                          # Generado por Maven (Lexer, Parser, sym, clases)
 ```
 
 > **Importante**: Los archivos `Lexer.java`, `Parser.java` y `sym.java` se generan automáticamente durante la compilación con Maven. No deben editarse a mano.
@@ -27,9 +35,16 @@ Implementa un analizador léxico (JFlex) y un analizador sintáctico (CUP) para 
 
 - **Java 21** (LTS o superior)
 - **Maven 3.6+**
-- Sistema operativo: Windows, Linux o macOS (la interfaz usa Swing)
+- **Graphviz** (para generar ast.png desde ast.dot)
+  - Windows: Instalar desde graphviz.org y agregar dot al PATH.
+  - Linux: `sudo apt install graphviz`
+  - macOS: `brew install graphviz`
+- **LLVM/Clang** (para compilar programa.ll a ejecutable)
+  - Windows: Instalar LLVM (marcar “Add to PATH”).
+  - Linux: `sudo apt install clang lld`
+  - macOS: `xcode-select --install` (incluye clang)
 
-No es necesario instalar JFlex ni CUP por separado; los plugins de Maven los ejecutan automáticamente.
+Además, en Windows se debe linkear la biblioteca scanf.o para que funcionen las lecturas. El comando de compilación usado internamente lo hace automáticamente si scanf.o está en el directorio de trabajo.
 
 ## Compilar y generar los analizadores
 
@@ -81,53 +96,65 @@ Al ejecutar se abre una ventana con dos áreas:
 
 Botones principales:
 
-| Botón               | Acción                                                                                   |
-| ------------------- | ---------------------------------------------------------------------------------------- |
-| Cargar Archivo      | Abre un archivo .txt (ej. input.txt) y lo carga en el editor.                            |
-| Guardar Archivo     | Guarda el contenido del editor en un archivo.                                            |
-| Limpiar Consola     | Borra el contenido de la consola.                                                        |
-| Análisis Léxico     | Ejecuta únicamente el escáner (JFlex) y lista los tokens.                                |
-| Análisis Sintáctico | Ejecuta el analizador completo (CUP). Valida la gramática y genera la Tabla de Símbolos. |
+| Botón                           | Acción                                                                                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Cargar Archivo                  | Abre un archivo .txt (ej. input.txt) y lo carga en el editor.                                                              |
+| Guardar Archivo                 | Guarda el contenido del editor en un archivo.                                                                              |
+| Limpiar Consola                 | Borra el contenido de la consola.                                                                                          |
+| Análisis Léxico                 | Ejecuta únicamente el escáner (JFlex) y lista los tokens.                                                                  |
+| Análisis Sintáctico y Semántico | Ejecuta el parser completo, valida la gramática, construye el AST, genera ast.dot/ast.png y la tabla de símbolos (ts.txt). |
+| Generar Código LLVM             | Genera el archivo programa.ll con el código intermedio, sin ejecutar el programa.                                          |
 
-## ¿Qué ocurre al compilar?
+## Menú adicional (barra superior)
 
-- Se muestran en la consola todas las reglas gramaticales que va aplicando el parser.
-- Si no hay errores léxicos ni sintácticos, se genera el archivo tablaSimbolos.txt en la raíz del proyecto.
-- Si hay errores, se informan en la consola (con línea y columna) y no se genera la tabla.
+Ver → Mostrar código IR: Abre un diálogo con el contenido de programa.ll (útil para depuración).
 
-## Archivo tablaSimbolos.txt
+## Botón “Compilar y Ejecutar”
 
-Formato de columnas: NOMBRE | TOKEN | TIPO | VALOR | LONGITUD
+Este botón compila el programa completo y lo ejecuta, mostrando la salida en la consola:
+1. Realiza análisis léxico, sintáctico y semántico.
+2. Genera ast.dot, ast.png y ts.txt.
+3. Genera programa.ll.
+4. Invoca a clang para producir un ejecutable (programa.exe en Windows, programa.out en Linux/macOS).
+5. Ejecuta el programa generado y captura su salida estándar/error.
+6. Muestra la salida en la consola de la interfaz.
 
-- Los identificadores declarados en la zona de declaraciones (INT: a, b) aparecen con TOKEN = ID y su tipo declarado.
-- Las constantes de cadena ("...") se registran como CTE_STR con su contenido y longitud.
-- Las variables no guardan su valor (solo tipo y nombre).
+Si ocurre algún error (léxico, sintáctico, semántico o de compilación con clang), se informa en la consola.
 
-Ejemplo de salida:
+## Archivos generados por el compilador
 
-| NOMBRE   | TOKEN   | TIPO | VALOR                                   | LONGITUD |
-| -------- | ------- | ---- | --------------------------------------- | -------- |
-| iterador | ID      | INT  | -                                       | -        |
-| limite   | ID      | INT  | -                                       | -        |
-| -        | CTE_STR | -    | Iniciando pruebas del compilador UNNOBA | 39       |
+| Archivo                       | Descripción                                                              |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| tablaSimbolos.txt             | Tabla de símbolos con columnas: NOMBRE | TOKEN | TIPO | VALOR | LONGITUD |
+| ast.dot                       | Definición del AST en formato DOT (Graphviz).                            |
+| ast.png                       | Imagen del AST generada automáticamente (requiere Graphviz).             |
+| programa.ll                   | Código intermedio en lenguaje LLVM IR.                                   |
+| programa.exe (o programa.out) | Ejecutable nativo generado por clang a partir del IR.                    |
 
 ## Lenguaje soportado
 
-El analizador reconoce completamente la sintaxis definida en el anexo del enunciado:
-
-- Tipos: INT, FLOAT, BOOLEAN, ARRAY[n]
-- Declaraciones: TIPO: lista_de_variables
-- Programa: delimitado por PROGRAM e indentación significativa.
-- Sentencias: asignación (=), IF/ELIF/ELSE, WHILE/ALT_WHILE, BREAK, CONTINUE, PRINT, expresiones aritméticas, relacionales y lógicas.
-- Lectura: READ_INT(), READ_FLOAT(), READ_BOOL() como factores.
-- Comentarios: multilínea (_ ... _) y de línea %.
-- Tema especial del grupo: función moda() (reconocida sintácticamente).
+El compilador implementa todos los aspectos del enunciado:
+- Tipos: INT, FLOAT, BOOLEAN, ARRAY[n] (arreglos de floats).
+- Declaraciones: TIPO: var1, var2, ... (zona previa al PROGRAM).
+- Programa: bloque indentado después de PROGRAM.
+- Sentencias: asignación simple (=), asignación a posición de arreglo ([índice] =), IF/ELIF/ELSE, WHILE/ALT_WHILE, BREAK, CONTINUE, PRINT.
+- Expresiones: aritméticas (+, -, *, /, - unario), relacionales (==, !=, <, <=, >, >=), lógicas (&&, ||, !).
+- Entrada/Salida: READ_INT(), READ_FLOAT(), READ_BOOL(), PRINT (cadenas, números, booleanos, arreglos).
+- Arreglos:
+  - Literales: [1.5, -2.3, 7.0]
+  - Acceso indexado: miArray[expr] (con verificación de límites en tiempo de ejecución).
+  - Broadcast: asignación de escalar a todo el arreglo o operaciones aritméticas/comparaciones escalar-arreglo.
+- Comentarios: multilínea (* ... *) y de línea %.
+- Tema especial (grupo): función moda(lista) – devuelve el valor que más se repite (float). Si la lista está vacía, imprime “La lista está vacía” y retorna -1.0.
 
 ## Solución de problemas comunes
 
-| Problema                                         | Posible solución                                                                                                                                            |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lexer.java o Parser.java no se encuentran        | Ejecute mvn clean compile para regenerarlos.                                                                                                                |
-| package java_cup.runtime does not exist          | Verifique que libs/java-cup-11b-runtime.jar exista y que el pom.xml lo incluya como dependencia del sistema.                                                |
-| Error de indentación "Indentación inconsistente" | No mezcle espacios y tabuladores. El lexer convierte un tabulador a 4 espacios. Revise que todas las líneas del bloque PROGRAM tengan la misma indentación. |
-| No se genera tablaSimbolos.txt                   | Solo se genera si el análisis termina sin errores fatales. Revise la consola en busca de errores léxicos o sintácticos.                                     |
+| Problema                                            | Posible solución                                                                                                                                            |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lexer.java o Parser.java no se encuentran           | Ejecute mvn clean compile para regenerarlos.                                                                                                                |
+| package java_cup.runtime does not exist             | Verifique que libs/java-cup-11b-runtime.jar exista y que el pom.xml lo incluya como dependencia del sistema.                                                |
+| Error de indentación "Indentación inconsistente"    | No mezcle espacios y tabuladores. El lexer convierte un tabulador a 4 espacios. Revise que todas las líneas del bloque PROGRAM tengan la misma indentación. |
+| No se genera tablaSimbolos.txt                      | Solo se genera si el análisis termina sin errores fatales. Revise la consola en busca de errores léxicos o sintácticos.                                     |
+| No se genera ast.png                                | Graphviz no está instalado o dot no está en el PATH. Instalar Graphviz y verificar con dot -V. El archivo ast.dot igual se genera.                          |
+| clang no se encuentra al compilar el programa       | Instalar LLVM/Clang y agregarlo al PATH. En Windows, asegurar que la opción “Agregar a PATH” esté marcada durante la instalación.                           |
+| El programa ejecutable no corre o no muestra salida | En Windows, verificar que scanf.o esté en el directorio de trabajo. El compilador lo linkea automáticamente.                                                |
