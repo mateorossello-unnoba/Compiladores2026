@@ -55,11 +55,24 @@ public class Print extends Sentencia {
         }
 
         String formato;
+        int longitudFormato;
         switch (tipoDato) {
-            case BOOLEAN -> formato = "%d\\0A";
-            case FLOAT -> formato = "%f\\0A";
-            case INT -> formato = "%d\\0A";
-            case STRING -> formato = "%s\\0A";
+            case BOOLEAN -> {
+                formato = "%d\\0A";
+                longitudFormato = 4;
+            }
+            case FLOAT -> {
+                formato = "%f\\0A";
+                longitudFormato = 4;
+            }
+            case INT -> {
+                formato = "%d\\0A";
+                longitudFormato = 4;
+            }
+            case STRING -> {
+                formato = "%s\\0A";
+                longitudFormato = 4;
+            }
             default -> throw new IllegalStateException("Tipo de dato no soportado.");
         };
 
@@ -74,8 +87,7 @@ public class Print extends Sentencia {
         } else {
             valorFinal = tipo + " " + referenciaValor;
         }
-
-        int longitudFormato = formato.length() + 1;
+        
         String instruccion = "  call i32 (i8*, ...) @printf(i8* getelementptr ([" + longitudFormato + " x i8], [" + longitudFormato + " x i8]* " + referenciaFormato + ", i32 0, i32 0), " + valorFinal + ")\n";
 
         return codigoExpresion + instruccion;

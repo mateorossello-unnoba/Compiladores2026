@@ -285,6 +285,20 @@ public class VentanaCompilador extends JFrame {
                 writer.write(codigoFinal);
             }
 
+            Process objeto = Runtime.getRuntime().exec(new String[]{"wsl", "clang", "-c", "-o", "programa.o", "programa.ll"});
+            leerSalidaProceso(objeto);
+
+            if (objeto.waitFor() != 0) {
+                throw new RuntimeException("Falló la generación del archivo objeto.");
+            }
+
+            Process ejecutable = Runtime.getRuntime().exec(new String[]{"wsl", "clang", "-o", "programa", "programa.o"});
+            leerSalidaProceso(ejecutable);
+
+            if (ejecutable.waitFor() != 0) {
+                throw new RuntimeException("Falló la generación del ejecutable, comprobar la existencia de librerías necesarias.");
+            }
+
             System.out.println("[SISTEMA] Código LLVM generado y guardado en 'programa.ll' satisfactoriamente.");
 
             System.out.println("\n--- Generación de Código LLVM finalizada sin errores ---");
@@ -295,6 +309,21 @@ public class VentanaCompilador extends JFrame {
             System.setOut(oldOut);
             System.setErr(oldErr);
             areaConsola.setText(byteArrayOutputStream.toString());
+        }
+    }
+
+    private void leerSalidaProceso(Process proceso) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(proceso.getInputStream()));
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        
+        BufferedReader errorReader = new BufferedReader(new InputStreamReader(proceso.getErrorStream()));
+
+        while ((line = errorReader.readLine()) != null) {
+            System.err.println("[CLANG] " + line);
         }
     }
 }

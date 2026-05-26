@@ -21,6 +21,12 @@ public class Identificador extends Expresion {
 
     @Override
     public String generarCodigo(GeneradorCodigo generadorCodigo) {
+        // Si el identificador es un arreglo, se devuelve la referencia al arreglo en lugar de cargar su valor
+        if (this.tipoDato == TipoDato.ARRAY) {
+            this.setIrReferencia("%" + this.getNombre());
+            return "";
+        }
+
         // Obtener un nuevo puntero para cargar el valor de la variable
         String puntero = AyudanteGeneradorCodigo.getNuevoPuntero();
         this.setIrReferencia(puntero);

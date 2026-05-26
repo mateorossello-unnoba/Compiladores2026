@@ -1,28 +1,28 @@
 ; --- Compilador UNNOBA - 2026 ---
 target datalayout = "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-pc-windows-msvc19.33.0"
+target triple = "x86_64-pc-linux-gnu"
 
 ; --- Cadenas Globales ---
 @.str.0 = private unnamed_addr constant [40 x i8] c"Iniciando pruebas del compilador UNNOBA\00"
-@.str.1 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
+@.str.1 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @.str.2 = private unnamed_addr constant [40 x i8] c"Ingrese un numero entero para comenzar:\00"
-@.str.3 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
+@.str.3 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @.str.4 = private unnamed_addr constant [3 x i8] c"%d\00"
 @.str.5 = private unnamed_addr constant [26 x i8] c"El valor supera el limite\00"
-@.str.6 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
+@.str.6 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @.str.7 = private unnamed_addr constant [40 x i8] c"El valor es exactamente igual al limite\00"
-@.str.8 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
+@.str.8 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @.str.9 = private unnamed_addr constant [36 x i8] c"El valor esta por debajo del limite\00"
-@.str.10 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
+@.str.10 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @.str.11 = private unnamed_addr constant [29 x i8] c"Acumulador alcanzo el maximo\00"
-@.str.12 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
+@.str.12 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @.str.13 = private unnamed_addr constant [21 x i8] c"Ajustando bandera...\00"
-@.str.14 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
+@.str.14 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @.str.15 = private unnamed_addr constant [41 x i8] c"Calculando la moda del arreglo de datos:\00"
-@.str.16 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
-@.str.17 = private unnamed_addr constant [6 x i8] c"%f\0A\00"
+@.str.16 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@.str.17 = private unnamed_addr constant [4 x i8] c"%f\0A\00"
 @.str.18 = private unnamed_addr constant [33 x i8] c"Fin de las operaciones con exito\00"
-@.str.19 = private unnamed_addr constant [6 x i8] c"%s\0A\00"
+@.str.19 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 
 declare i32 @printf(i8*, ...)
 declare i32 @scanf(i8*, ...)
@@ -60,8 +60,8 @@ entrada:
   store double 3.0, double* %puntero.9
   %puntero.10 = getelementptr [5 x double], [5 x double]* %arreglo_datos, i32 0, i32 4
   store double 3.0, double* %puntero.10
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.1, i32 0, i32 0), i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.0, i32 0, i32 0))
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.3, i32 0, i32 0), i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.2, i32 0, i32 0))
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.1, i32 0, i32 0), i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.0, i32 0, i32 0))
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.3, i32 0, i32 0), i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.2, i32 0, i32 0))
   %puntero.13 = alloca i32
   call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str.4, i64 0, i64 0), i32* %puntero.13)
   %puntero.14 = load i32, i32* %puntero.13
@@ -74,7 +74,7 @@ entrada:
   br i1 %puntero.19, label %etiqueta.1, label %etiqueta.3
 
 etiqueta.1:
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.6, i32 0, i32 0), i8* getelementptr inbounds ([26 x i8], [26 x i8]* @.str.5, i32 0, i32 0))
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.6, i32 0, i32 0), i8* getelementptr inbounds ([26 x i8], [26 x i8]* @.str.5, i32 0, i32 0))
   %puntero.21 = xor i1 true, false
   store i1 %puntero.21, i1* %es_mayor
   br label %etiqueta.2
@@ -86,13 +86,13 @@ etiqueta.3:
   br i1 %puntero.24, label %etiqueta.4, label %etiqueta.6
 
 etiqueta.4:
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.8, i32 0, i32 0), i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.7, i32 0, i32 0))
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.8, i32 0, i32 0), i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.7, i32 0, i32 0))
   %puntero.26 = xor i1 false, false
   store i1 %puntero.26, i1* %es_mayor
   br label %etiqueta.5
 
 etiqueta.6:
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.10, i32 0, i32 0), i8* getelementptr inbounds ([36 x i8], [36 x i8]* @.str.9, i32 0, i32 0))
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.10, i32 0, i32 0), i8* getelementptr inbounds ([36 x i8], [36 x i8]* @.str.9, i32 0, i32 0))
   %puntero.28 = xor i1 true, false
   %puntero.29 = xor i1 true, %puntero.28
   store i1 %puntero.29, i1* %es_mayor
@@ -127,7 +127,7 @@ etiqueta.9:
   br i1 %puntero.43, label %etiqueta.11, label %etiqueta.12
 
 etiqueta.11:
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.12, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.11, i32 0, i32 0))
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.12, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.11, i32 0, i32 0))
   br label %etiqueta.8
   br label %etiqueta.12
 
@@ -141,97 +141,96 @@ etiqueta.10:
   br i1 %puntero.47, label %etiqueta.13, label %etiqueta.8
 
 etiqueta.13:
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.14, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str.13, i32 0, i32 0))
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.14, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str.13, i32 0, i32 0))
   %puntero.49 = xor i1 true, false
   store i1 %puntero.49, i1* %es_mayor
   br label %etiqueta.10
   br label %etiqueta.10
 
 etiqueta.8:
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.16, i32 0, i32 0), i8* getelementptr inbounds ([41 x i8], [41 x i8]* @.str.15, i32 0, i32 0))
-  %puntero.51 = load double*, double** %arreglo_datos
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.16, i32 0, i32 0), i8* getelementptr inbounds ([41 x i8], [41 x i8]* @.str.15, i32 0, i32 0))
   ; --- INICIO ALGORITMO MODA ---
-  %puntero.52 = alloca i32
-  %puntero.53 = alloca double
+  %puntero.51 = alloca i32
+  %puntero.52 = alloca double
+  %puntero.53 = alloca i32
   %puntero.54 = alloca i32
   %puntero.55 = alloca i32
-  %puntero.56 = alloca i32
-  store i32 0, i32* %puntero.52
-  store double 0.0, double* %puntero.53
-  store i32 0, i32* %puntero.54
+  store i32 0, i32* %puntero.51
+  store double 0.0, double* %puntero.52
+  store i32 0, i32* %puntero.53
   br label %etiqueta.14
 
 etiqueta.14:
-  %puntero.57 = load i32, i32* %puntero.54
-  %puntero.58 = icmp slt i32 %puntero.57, 5
-  br i1 %puntero.58, label %etiqueta.15, label %etiqueta.23
+  %puntero.56 = load i32, i32* %puntero.53
+  %puntero.57 = icmp slt i32 %puntero.56, 5
+  br i1 %puntero.57, label %etiqueta.15, label %etiqueta.23
 
 etiqueta.15:
-  %puntero.59 = getelementptr [5 x double], [5 x double]* %puntero.51, i32 0, i32 %puntero.57
-  %puntero.60 = load double, double* %puntero.59
-  store i32 0, i32* %puntero.56
+  %puntero.58 = getelementptr [5 x double], [5 x double]* %arreglo_datos, i32 0, i32 %puntero.56
+  %puntero.59 = load double, double* %puntero.58
   store i32 0, i32* %puntero.55
+  store i32 0, i32* %puntero.54
   br label %etiqueta.16
 
 etiqueta.16:
-  %puntero.61 = load i32, i32* %puntero.55
-  %puntero.62 = icmp slt i32 %puntero.61, 5
-  br i1 %puntero.62, label %etiqueta.17, label %etiqueta.19
+  %puntero.60 = load i32, i32* %puntero.54
+  %puntero.61 = icmp slt i32 %puntero.60, 5
+  br i1 %puntero.61, label %etiqueta.17, label %etiqueta.19
 
 etiqueta.17:
-  %puntero.63 = getelementptr [5 x double], [5 x double]* %puntero.51, i32 0, i32 %puntero.61
-  %puntero.64 = load double, double* %puntero.63
-  %puntero.65 = fcmp oeq double %puntero.60, %puntero.64
-  br i1 %puntero.65, label %etiqueta.18, label %etiqueta.22
+  %puntero.62 = getelementptr [5 x double], [5 x double]* %arreglo_datos, i32 0, i32 %puntero.60
+  %puntero.63 = load double, double* %puntero.62
+  %puntero.64 = fcmp oeq double %puntero.59, %puntero.63
+  br i1 %puntero.64, label %etiqueta.18, label %etiqueta.22
 
 etiqueta.18:
-  %puntero.66 = load i32, i32* %puntero.56
-  %puntero.67 = add i32 %puntero.66, 1
-  store i32 %puntero.67, i32* %puntero.56
+  %puntero.65 = load i32, i32* %puntero.55
+  %puntero.66 = add i32 %puntero.65, 1
+  store i32 %puntero.66, i32* %puntero.55
   br label %etiqueta.22
 
 etiqueta.19:
-  %puntero.68 = load i32, i32* %puntero.56
-  %puntero.69 = load i32, i32* %puntero.52
-  %puntero.70 = icmp sgt i32 %puntero.68, %puntero.69
-  br i1 %puntero.70, label %etiqueta.20, label %etiqueta.21
+  %puntero.67 = load i32, i32* %puntero.55
+  %puntero.68 = load i32, i32* %puntero.51
+  %puntero.69 = icmp sgt i32 %puntero.67, %puntero.68
+  br i1 %puntero.69, label %etiqueta.20, label %etiqueta.21
 
 etiqueta.20:
-  store i32 %puntero.68, i32* %puntero.52
-  store double %puntero.60, double* %puntero.53
+  store i32 %puntero.67, i32* %puntero.51
+  store double %puntero.59, double* %puntero.52
   br label %etiqueta.21
 
 etiqueta.21:
-  %puntero.71 = add i32 %puntero.57, 1
-  store i32 %puntero.71, i32* %puntero.54
+  %puntero.70 = add i32 %puntero.56, 1
+  store i32 %puntero.70, i32* %puntero.53
   br label %etiqueta.14
 
 etiqueta.22:
-  %puntero.72 = add i32 %puntero.61, 1
-  store i32 %puntero.72, i32* %puntero.55
+  %puntero.71 = add i32 %puntero.60, 1
+  store i32 %puntero.71, i32* %puntero.54
   br label %etiqueta.16
 
 etiqueta.23:
-  %puntero.73 = load double, double* %puntero.53
+  %puntero.72 = load double, double* %puntero.52
   ; --- FIN ALGORITMO MODA ---
-  store double %puntero.73, double* %m
-  %puntero.74 = load double, double* %m
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.17, i32 0, i32 0), double %puntero.74)
-  %puntero.75 = load double, double* %acumulador
-  %puntero.76 = fadd double 0.0, 5.
-  %puntero.77 = fdiv double %puntero.75, %puntero.76
-  store double %puntero.77, double* %promedio
-  %puntero.78 = load double, double* %promedio
-  %puntero.79 = load double, double* %m
-  %puntero.80 = fcmp one double %puntero.78, %puntero.79
-  %puntero.81 = load double, double* %acumulador
-  %puntero.82 = fadd double 0.0, 0.
-  %puntero.83 = fcmp ole double %puntero.81, %puntero.82
-  %puntero.84 = or i1 %puntero.80, %puntero.83
-  br i1 %puntero.84, label %etiqueta.24, label %etiqueta.25
+  store double %puntero.72, double* %m
+  %puntero.73 = load double, double* %m
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.17, i32 0, i32 0), double %puntero.73)
+  %puntero.74 = load double, double* %acumulador
+  %puntero.75 = fadd double 0.0, 5.
+  %puntero.76 = fdiv double %puntero.74, %puntero.75
+  store double %puntero.76, double* %promedio
+  %puntero.77 = load double, double* %promedio
+  %puntero.78 = load double, double* %m
+  %puntero.79 = fcmp one double %puntero.77, %puntero.78
+  %puntero.80 = load double, double* %acumulador
+  %puntero.81 = fadd double 0.0, 0.
+  %puntero.82 = fcmp ole double %puntero.80, %puntero.81
+  %puntero.83 = or i1 %puntero.79, %puntero.82
+  br i1 %puntero.83, label %etiqueta.24, label %etiqueta.25
 
 etiqueta.24:
-  call i32 (i8*, ...) @printf(i8* getelementptr ([6 x i8], [6 x i8]* @.str.19, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.18, i32 0, i32 0))
+  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.19, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.18, i32 0, i32 0))
   br label %etiqueta.25
 
 etiqueta.25:

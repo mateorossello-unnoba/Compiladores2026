@@ -24,7 +24,7 @@ public class Moda extends Expresion {
         StringBuilder codigo = new StringBuilder();
 
         // Generar código para obtener el arreglo y su referencia
-        codigo.append(this.arreglo.generarCodigo(generadorCodigo));
+        codigo.append(arreglo.generarCodigo(generadorCodigo));
         String referenciaArreglo = this.arreglo.getIrReferencia();
         int n = this.arreglo.getDimensionArreglo();
 

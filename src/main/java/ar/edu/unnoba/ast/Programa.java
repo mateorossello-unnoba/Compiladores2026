@@ -47,7 +47,7 @@ public class Programa extends Nodo {
         // Incluir la cabecera estándar con la configuración del compilador
         codigoFinal.append("; --- Compilador UNNOBA - 2026 ---\n");
         codigoFinal.append("target datalayout = \"e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128\"\n");
-        codigoFinal.append("target triple = \"x86_64-pc-windows-msvc19.33.0\"\n\n");
+        codigoFinal.append("target triple = \"x86_64-pc-linux-gnu\"\n\n");
 
         // Incluir las definiciones de los strings registrados durante la generación de código
         codigoFinal.append("; --- Cadenas Globales ---\n");
