@@ -39,12 +39,17 @@ Este proyecto es la segunda entrega del trabajo práctico de Compiladores. Imple
   - Windows: Instalar desde graphviz.org y agregar dot al PATH.
   - Linux: `sudo apt install graphviz`
   - macOS: `brew install graphviz`
-- **LLVM/Clang** (para compilar programa.ll a ejecutable)
-  - Windows: Instalar LLVM (marcar “Add to PATH”).
-  - Linux: `sudo apt install clang lld`
-  - macOS: `xcode-select --install` (incluye clang)
+- **LLVM/Clang** (para compilar `programa.ll` a ejecutable)
+  - El compilador invoca `clang` mediante **WSL** (Windows Subsystem for Linux). Por lo tanto, no es necesario instalar LLVM nativamente en Windows.
+  - Asegúrese de tener WSL habilitado y una distribución Linux (por ejemplo, Ubuntu) instalada.
+  - Dentro de WSL, instale `clang` y `lld`:
 
-Además, en Windows se debe linkear la biblioteca scanf.o para que funcionen las lecturas. El comando de compilación usado internamente lo hace automáticamente si scanf.o está en el directorio de trabajo.
+```bash
+sudo apt update
+sudo sudo apt install clang -y
+```
+
+Para verificar, ejecute `wsl clang --version` en una terminal de Windows.
 
 ## Compilar y generar los analizadores
 
@@ -56,10 +61,10 @@ mvn clean compile
 
 Este comando:
 
-1. Ejecuta el plugin de JFlex → genera Lexer.java (en target/generated-sources/jflex/).
-2. Ejecuta CUP → genera Parser.java y sym.java (en src/main/java/ar/edu/unnoba/).
+1. Ejecuta el plugin de JFlex → genera `Lexer.java` (en `target/generated-sources/jflex/`).
+2. Ejecuta CUP → genera `Parser.java` y `sym.java` (en `src/main/java/ar/edu/unnoba/`).
 3. Compila todas las clases Java.
-4. Si modifica lexico.flex o parser.cup, debe repetir este paso.
+4. Si modifica `lexico.flex` o `parser.cup`, debe repetir este paso.
 
 ## Ejecutar la aplicación
 
@@ -104,22 +109,9 @@ Botones principales:
 | Análisis Léxico                 | Ejecuta únicamente el escáner (JFlex) y lista los tokens.                                                                  |
 | Análisis Sintáctico y Semántico | Ejecuta el parser completo, valida la gramática, construye el AST, genera ast.dot/ast.png y la tabla de símbolos (ts.txt). |
 | Generar Código LLVM             | Genera el archivo programa.ll con el código intermedio, sin ejecutar el programa.                                          |
+| Compilar y Ejecutar             | Realiza todo el proceso anterior y además ejecuta el programa generado, mostrando su salida en la consola.                 |
 
-## Menú adicional (barra superior)
-
-Ver → Mostrar código IR: Abre un diálogo con el contenido de programa.ll (útil para depuración).
-
-## Botón “Compilar y Ejecutar”
-
-Este botón compila el programa completo y lo ejecuta, mostrando la salida en la consola:
-1. Realiza análisis léxico, sintáctico y semántico.
-2. Genera ast.dot, ast.png y ts.txt.
-3. Genera programa.ll.
-4. Invoca a clang para producir un ejecutable (programa.exe en Windows, programa.out en Linux/macOS).
-5. Ejecuta el programa generado y captura su salida estándar/error.
-6. Muestra la salida en la consola de la interfaz.
-
-Si ocurre algún error (léxico, sintáctico, semántico o de compilación con clang), se informa en la consola.
+El código LLVM generado se puede ver en la segunda pestaña (“Código LLVM”) en cualquier momento después de presionar Generar Código LLVM o Compilar y Ejecutar.
 
 ## Archivos generados por el compilador
 
@@ -129,7 +121,7 @@ Si ocurre algún error (léxico, sintáctico, semántico o de compilación con c
 | ast.dot                       | Definición del AST en formato DOT (Graphviz).                            |
 | ast.png                       | Imagen del AST generada automáticamente (requiere Graphviz).             |
 | programa.ll                   | Código intermedio en lenguaje LLVM IR.                                   |
-| programa.exe (o programa.out) | Ejecutable nativo generado por clang a partir del IR.                    |
+| programa                      | Ejecutable nativo generado por clang a partir del IR.                    |
 
 ## Lenguaje soportado
 

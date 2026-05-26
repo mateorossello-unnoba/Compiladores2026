@@ -20,7 +20,7 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# virtual machine crash logs
 hs_err_pid*
 replay_pid*
 
@@ -31,3 +31,17 @@ target/
 .idea/
 .vscode/
 
+# Archivos generados por JFlex y CUP (se regeneran con Maven)
+**/Lexer.java
+**/Parser.java
+**/sym.java
+
+# Archivos de salida del compilador
+ast.dot
+ast.png
+tablaSimbolos.txt
+programa.ll
+programa.o
+programa
+programa.exe
+*.out
