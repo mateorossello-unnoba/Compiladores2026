@@ -29,9 +29,19 @@ public class Moda extends Expresion {
         int n = this.arreglo.getDimensionArreglo();
 
         if (n <= 0) {
+            StringBuilder codigoVacio = new StringBuilder();
+        
+            String mensajeVacio = "La lista esta vacia\\0A";
+            String referenciaStringVacio = AyudanteGeneradorCodigo.registrarString(mensajeVacio);
+            int longitudReal = mensajeVacio.replace("\\0A", " ").length() + 1;
+            
+            codigoVacio.append("  call i32 (i8*, ...) @printf(i8* getelementptr ([").append(longitudReal).append(" x i8], [").append(longitudReal).append(" x i8]* ").append(referenciaStringVacio).append(", i32 0, i32 0))\n");
+
             String modaVacia = AyudanteGeneradorCodigo.getNuevoPuntero();
             this.setIrReferencia(modaVacia);
-            return "  " + modaVacia + " = fadd double -1.0, 0.0\n";
+            codigoVacio.append("  ").append(modaVacia).append(" = fadd double -1.0, 0.0\n");
+            
+            return codigoVacio.toString();
         }
 
         // Reservar espacio para variables necesarias

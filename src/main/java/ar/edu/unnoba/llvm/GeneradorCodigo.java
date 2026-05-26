@@ -11,6 +11,36 @@ public class GeneradorCodigo {
     private Stack<String> pilaContinue = new Stack<>();
     private String ultimoPunteroArreglo = "";
 
+    public static String generarControlLimites(String nombreArreglo, int dimension, String referenciaIndice) {
+        StringBuilder codigo = new StringBuilder();
+        
+        String compararMayorIgualCero = AyudanteGeneradorCodigo.getNuevoPuntero();
+        String compararMenorDimension = AyudanteGeneradorCodigo.getNuevoPuntero();
+        String compararValido = AyudanteGeneradorCodigo.getNuevoPuntero();
+        
+        String etiquetaValida = AyudanteGeneradorCodigo.getNuevaEtiqueta();
+        String etiquetaError = AyudanteGeneradorCodigo.getNuevaEtiqueta();
+
+        codigo.append("  ; --- CONTROL DE LÍMITES PARA ACCESO A ARREGLO ---\n");
+        codigo.append("  ").append(compararMayorIgualCero).append(" = icmp sge i32 ").append(referenciaIndice).append(", 0\n");
+        codigo.append("  ").append(compararMenorDimension).append(" = icmp slt i32 ").append(referenciaIndice).append(", ").append(dimension).append("\n");
+        codigo.append("  ").append(compararValido).append(" = and i1 ").append(compararMayorIgualCero).append(", ").append(compararMenorDimension).append("\n");
+        codigo.append("  br i1 ").append(compararValido).append(", label %").append(etiquetaValida).append(", label %").append(etiquetaError).append("\n\n");
+
+        codigo.append(etiquetaError).append(":\n");
+        String mensajeError = "Acceso fuera de rango para '" + nombreArreglo + "' que es un arreglo de longitud " + dimension + ".\\0A";
+
+        String referenciaStringError = AyudanteGeneradorCodigo.registrarString(mensajeError);
+        int longitudReal = mensajeError.replace("\\0A", " ").length() + 1;
+        
+        codigo.append("  call i32 (i8*, ...) @printf(i8* getelementptr ([").append(longitudReal).append(" x i8], [").append(longitudReal).append(" x i8]* ").append(referenciaStringError).append(", i32 0, i32 0))\n");
+        codigo.append("  ret i32 1\n\n");
+
+        codigo.append(etiquetaValida).append(":\n");
+        
+        return codigo.toString();
+    }
+
     public String generarOperacionArreglos(String operador, Expresion izquierda, Expresion derecha) {
         StringBuilder codigo = new StringBuilder();
         

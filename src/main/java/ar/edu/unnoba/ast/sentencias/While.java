@@ -73,10 +73,10 @@ public class While extends Sentencia {
 
                 codigo.append("  br i1 ").append(alternativa.getCondicion().getIrReferencia()).append(", label %").append(etiquetaCuerpoAlternativa).append(", label %").append(etiquetaSiguiente).append("\n\n");
                 codigo.append(etiquetaCuerpoAlternativa).append(":\n");
-                generadorCodigo.getPilaContinue().push(etiquetaCondicionActual);
+                generadorCodigo.getPilaContinue().push(etiquetaInicio);
                 codigo.append(generadorCodigo.generarBloqueCodigo(alternativa.getCuerpo()));
                 generadorCodigo.getPilaContinue().pop();
-                codigo.append("  br label %").append(etiquetaCondicionActual).append("\n\n");
+                codigo.append("  br label %").append(etiquetaInicio).append("\n\n");
                 etiquetaCondicionActual = etiquetaSiguiente;
             }
         }
