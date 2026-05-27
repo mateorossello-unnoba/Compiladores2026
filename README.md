@@ -134,10 +134,10 @@ El compilador implementa todos los aspectos del enunciado:
 - Entrada/Salida: READ_INT(), READ_FLOAT(), READ_BOOL(), PRINT (cadenas, números, booleanos, arreglos).
 - Arreglos:
   - Literales: [1.5, -2.3, 7.0]
-  - Acceso indexado: miArray[expr] (con verificación de límites en tiempo de ejecución).
-  - Broadcast: asignación de escalar a todo el arreglo o operaciones aritméticas/comparaciones escalar-arreglo.
+  - Acceso indexado: miArray[expresion] (con verificación de límites en tiempo de ejecución).
+  - Broadcast: asignación de escalar a todo el arreglo u operaciones aritméticas/comparaciones escalar con arreglo.
 - Comentarios: multilínea (* ... *) y de línea %.
-- Tema especial (grupo): función moda(lista) – devuelve el valor que más se repite (float). Si la lista está vacía, imprime “La lista está vacía” y retorna -1.0.
+- Tema especial (grupo): función moda(lista) que devuelve el valor que más se repite (float). Si la lista está vacía, imprime “La lista está vacía” y retorna -1.0.
 
 ## Solución de problemas comunes
 

@@ -46,7 +46,7 @@ public class VentanaCompilador extends JFrame {
         JButton botonLimpiar = crearBotonEstilizado("❌ Limpiar Consola", null);
         JButton botonCompilarLexico = crearBotonEstilizado("▶ Análisis Léxico", null); 
         JButton botonCompilarSintactico = crearBotonEstilizado("▶ Análisis Sintáctico y Semántico", null);
-        JButton botonGenerarCodigo = crearBotonEstilizado("▶ Generar Código LLVM", null);
+        JButton botonGenerarCodigo = crearBotonEstilizado("▶ Generar Código LLVM IR", null);
         JButton botonCompilarEjecutar = crearBotonEstilizado("▶ Compilar y Ejecutar", null);
 
         panelSuperior.add(botonCargar);
@@ -75,7 +75,7 @@ public class VentanaCompilador extends JFrame {
         JScrollPane scrollCodigoLLVM = new JScrollPane(areaCodigoLLVM);
 
         panelCodigos.addTab(" Editor de Código ", scrollCodigo);
-        panelCodigos.addTab(" Código LLVM ", scrollCodigoLLVM);
+        panelCodigos.addTab(" Código LLVM IR ", scrollCodigoLLVM);
 
         // --- ÁREA INFERIOR (Consola de Salida) ---
         areaConsola = new JTextArea();

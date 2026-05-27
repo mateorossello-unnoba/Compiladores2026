@@ -73,7 +73,9 @@ public class Programa extends Nodo {
                 for (Identificador variable : declaracion.getVariables()) {
                     if (simbolo.getTipoDato() == TipoDato.ARRAY) {
                         int dimensionArreglo = simbolo.getDimensionArreglo();
-                        codigoFinal.append("  %").append(variable.getNombre()).append(" = alloca [").append(dimensionArreglo).append(" x double]\n");
+                        String nombreArreglo = variable.getNombre();
+                        codigoFinal.append("  %").append(nombreArreglo).append(" = alloca [").append(dimensionArreglo).append(" x double]\n");
+                        codigoFinal.append("  store [").append(dimensionArreglo).append(" x double] zeroinitializer, [").append(dimensionArreglo).append(" x double]* %").append(nombreArreglo).append("\n");
                     } else {
                         codigoFinal.append("  %").append(variable.getNombre()).append(" = alloca ").append(tipo).append("\n");
                     }
