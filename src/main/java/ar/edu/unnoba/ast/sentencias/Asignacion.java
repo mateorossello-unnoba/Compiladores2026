@@ -73,7 +73,7 @@ public class Asignacion extends Sentencia {
         String nombreDestino = this.variable.getNombre();
         String nombreOrigen = ((Identificador) this.valor).getNombre();
 
-        codigo.append("  ; --- COPIA DE ARREGLO ---\n");
+        codigo.append("  ; --- Copia de Arreglo ---\n");
 
         String punteroI = AyudanteGeneradorCodigo.getNuevoPuntero();
         codigo.append("  ").append(punteroI).append(" = alloca i32\n");
@@ -117,7 +117,7 @@ public class Asignacion extends Sentencia {
 
     private String asignarArregloEscalar(GeneradorCodigo generadorCodigo) {
         StringBuilder codigo = new StringBuilder();
-        codigo.append("  ; --- ASIGNACIÓN DE ESCALAR A ARREGLO ---\n");
+        codigo.append("  ; --- Asignación de Escalar a Arreglo ---\n");
         
         codigo.append(generadorCodigo.generarConConversion(this.valor, TipoDato.FLOAT));
         String referenciaValor = this.valor.getIrReferencia();

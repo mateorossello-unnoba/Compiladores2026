@@ -1,6 +1,7 @@
-# Compilador - Segunda Entrega (UNNOBA 2026)
+# Compilador UNNOBA - 2026
 
-Este proyecto es la segunda entrega del trabajo práctico de Compiladores. Implementa un compilador completo para el lenguaje definido en el enunciado, incluyendo:
+Este proyecto es la entrega final del trabajo práctico de Compiladores. Implementa un compilador completo para el lenguaje definido en el enunciado, incluyendo:
+
 - Análisis léxico (JFlex) con manejo de indentación significativa.
 - Análisis sintáctico (CUP) con recuperación de errores.
 - Tabla de símbolos (ts.txt) con tipos y dimensiones de arreglos.
@@ -115,28 +116,29 @@ El código LLVM generado se puede ver en la segunda pestaña (“Código LLVM”
 
 ## Archivos generados por el compilador
 
-| Archivo                       | Descripción                                                              |
-| ----------------------------- | ------------------------------------------------------------------------ |
-| tablaSimbolos.txt             | Tabla de símbolos con columnas: NOMBRE | TOKEN | TIPO | VALOR | LONGITUD |
-| ast.dot                       | Definición del AST en formato DOT (Graphviz).                            |
-| ast.png                       | Imagen del AST generada automáticamente (requiere Graphviz).             |
-| programa.ll                   | Código intermedio en lenguaje LLVM IR.                                   |
-| programa                      | Ejecutable nativo generado por clang a partir del IR.                    |
+| Archivo           | Descripción                                                  |
+| ----------------- | ------------------------------------------------------------ | ----- | ---- | ----- | -------- |
+| tablaSimbolos.txt | Tabla de símbolos con columnas: NOMBRE                       | TOKEN | TIPO | VALOR | LONGITUD |
+| ast.dot           | Definición del AST en formato DOT (Graphviz).                |
+| ast.png           | Imagen del AST generada automáticamente (requiere Graphviz). |
+| programa.ll       | Código intermedio en lenguaje LLVM IR.                       |
+| programa          | Ejecutable nativo generado por clang a partir del IR.        |
 
 ## Lenguaje soportado
 
 El compilador implementa todos los aspectos del enunciado:
+
 - Tipos: INT, FLOAT, BOOLEAN, ARRAY[n] (arreglos de floats).
 - Declaraciones: TIPO: var1, var2, ... (zona previa al PROGRAM).
 - Programa: bloque indentado después de PROGRAM.
 - Sentencias: asignación simple (=), asignación a posición de arreglo ([índice] =), IF/ELIF/ELSE, WHILE/ALT_WHILE, BREAK, CONTINUE, PRINT.
-- Expresiones: aritméticas (+, -, *, /, - unario), relacionales (==, !=, <, <=, >, >=), lógicas (&&, ||, !).
+- Expresiones: aritméticas (+, -, \*, /, - unario), relacionales (==, !=, <, <=, >, >=), lógicas (&&, ||, !).
 - Entrada/Salida: READ_INT(), READ_FLOAT(), READ_BOOL(), PRINT (cadenas, números, booleanos, arreglos).
 - Arreglos:
   - Literales: [1.5, -2.3, 7.0]
   - Acceso indexado: miArray[expresion] (con verificación de límites en tiempo de ejecución).
   - Broadcast: asignación de escalar a todo el arreglo u operaciones aritméticas/comparaciones escalar con arreglo.
-- Comentarios: multilínea (* ... *) y de línea %.
+- Comentarios: multilínea (_ ... _) y de línea %.
 - Tema especial (grupo): función moda(lista) que devuelve el valor que más se repite (float). Si la lista está vacía, imprime “La lista está vacía” y retorna -1.0.
 
 ## Solución de problemas comunes

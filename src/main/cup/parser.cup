@@ -9,8 +9,8 @@ import ar.edu.unnoba.ast.expresiones.logicas.*;
 import ar.edu.unnoba.ast.expresiones.matematicas.*;
 import ar.edu.unnoba.ast.sentencias.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
 // ---------------------------------------------------------
 //  Código Java incrustado para el Parser
@@ -123,14 +123,14 @@ lista_declaraciones ::= lista_declaraciones:lista declaracion:d {:
             RESULT = lista;
         :} ;
 
-declaracion ::= tipo:t DOS_PUNTOS lista_variables:v {:
+declaracion ::= tipo:t DOS_PUNTOS lista_variables:l {:
             System.out.println("[PARSER] REGLA: declaracion -> tipo DOS_PUNTOS lista_variables");
             
-            for (Identificador id : v) {
+            for (Identificador id : l) {
                 parser.tablaSimbolos.agregarVariable(id.getNombre(), t);
             }
 
-            RESULT = new Declaracion(t, v);
+            RESULT = new Declaracion(t, l);
         :} ;
 
 tipo ::= INT {: RESULT = new Simbolo(TipoDato.INT, 0); :}
@@ -330,10 +330,10 @@ term ::= term:e1 MULTIPLICACION factor:e2 {:
         :} | factor:e {: RESULT = e; :} ;
 
 // --- FACTORES (Valores atómicos y máxima precedencia) ---
-factor ::= RESTA factor:e {:
-            TipoDato resultado = ValidadorSemantico.verificarMenosUnario(e.getTipoDato());
-            MenosUnario menosUnario = new MenosUnario(resultado, e);
-            menosUnario.setDimensionArreglo(e.getDimensionArreglo());
+factor ::= RESTA factor:f {:
+            TipoDato resultado = ValidadorSemantico.verificarMenosUnario(f.getTipoDato());
+            MenosUnario menosUnario = new MenosUnario(resultado, f);
+            menosUnario.setDimensionArreglo(f.getDimensionArreglo());
             System.out.println("[PARSER] REGLA: factor -> MENOS_UNARIO factor");
             RESULT = menosUnario;
         :} | PARENTESIS_IZQ expr:e PARENTESIS_DER {:

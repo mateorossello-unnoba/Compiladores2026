@@ -401,7 +401,7 @@ public class VentanaCompilador extends JFrame {
 
             System.out.println("\n--- Abriendo el programa en una consola externa ---\n");
 
-            Process proceso = Runtime.getRuntime().exec(new String[]{
+            Runtime.getRuntime().exec(new String[]{
                 "cmd.exe", "/c", "start", "cmd.exe", "/k", "wsl ./programa"
             });
         } catch (Exception exception) {

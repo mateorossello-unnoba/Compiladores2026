@@ -21,7 +21,7 @@ public class GeneradorCodigo {
         String etiquetaValida = AyudanteGeneradorCodigo.getNuevaEtiqueta();
         String etiquetaError = AyudanteGeneradorCodigo.getNuevaEtiqueta();
 
-        codigo.append("  ; --- CONTROL DE LÍMITES PARA ACCESO A ARREGLO ---\n");
+        codigo.append("  ; --- Control de Límites para Acceder a Arreglo ---\n");
         codigo.append("  ").append(compararMayorIgualCero).append(" = icmp sge i32 ").append(referenciaIndice).append(", 0\n");
         codigo.append("  ").append(compararMenorDimension).append(" = icmp slt i32 ").append(referenciaIndice).append(", ").append(dimension).append("\n");
         codigo.append("  ").append(compararValido).append(" = and i1 ").append(compararMayorIgualCero).append(", ").append(compararMenorDimension).append("\n");
@@ -53,7 +53,7 @@ public class GeneradorCodigo {
         String punteroArregloResultado = AyudanteGeneradorCodigo.getNuevoPuntero();
         String punteroI = AyudanteGeneradorCodigo.getNuevoPuntero();
 
-        codigo.append("; --- INICIO DE OPERACIÓN DE ARREGLOS ---\n");
+        codigo.append("  ; --- Inicio de Operación de Arreglos ---\n");
         codigo.append("  ").append(punteroArregloResultado).append(" = alloca [").append(n).append(" x double]\n");
         codigo.append("  ").append(punteroI).append(" = alloca i32\n");
         codigo.append("  store i32 0, i32* ").append(punteroI).append("\n");
@@ -139,7 +139,7 @@ public class GeneradorCodigo {
         String punteroResultadoBooleano = AyudanteGeneradorCodigo.getNuevoPuntero();
         String punteroI = AyudanteGeneradorCodigo.getNuevoPuntero();
 
-        codigo.append("; --- INICIO DE COMPARACIÓN DE ARREGLOS ---\n");
+        codigo.append("  ; --- Inicio de Comparación de Arreglos ---\n");
 
         codigo.append("  ").append(punteroResultadoBooleano).append(" = alloca i1\n");
         codigo.append("  store i1 true, i1* ").append(punteroResultadoBooleano).append("\n");

@@ -36,8 +36,8 @@ public class AyudanteGeneradorCodigo {
         
         int longitud = valor.replace("\\0A", " ").length() + 1;
 
-        String declracion = nombre + " = private unnamed_addr constant [" + longitud + " x i8] c\"" + valor + "\\00\"\n";
-        strings.add(declracion);
+        String declaracion = nombre + " = private unnamed_addr constant [" + longitud + " x i8] c\"" + valor + "\\00\"\n";
+        strings.add(declaracion);
 
         return nombre;
     }

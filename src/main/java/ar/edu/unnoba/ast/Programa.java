@@ -1,9 +1,9 @@
 package ar.edu.unnoba.ast;
 
-import ar.edu.unnoba.Simbolo;
 import ar.edu.unnoba.ast.expresiones.Identificador;
 import ar.edu.unnoba.llvm.AyudanteGeneradorCodigo;
 import ar.edu.unnoba.llvm.GeneradorCodigo;
+import ar.edu.unnoba.Simbolo;
 import java.util.List;
 
 public class Programa extends Nodo {
@@ -35,11 +35,11 @@ public class Programa extends Nodo {
     }
 
     @Override
-    public String generarCodigo(GeneradorCodigo generador) {
+    public String generarCodigo(GeneradorCodigo generadorCodigo) {
         StringBuilder cuerpoCodigo = new StringBuilder();
 
         for (Sentencia sentencia : sentencias) {
-            cuerpoCodigo.append(sentencia.generarCodigo(generador));
+            cuerpoCodigo.append(sentencia.generarCodigo(generadorCodigo));
         }
 
         StringBuilder codigoFinal = new StringBuilder();
@@ -68,7 +68,7 @@ public class Programa extends Nodo {
         if (declaraciones != null) {
             for (Declaracion declaracion : declaraciones) {
                 Simbolo simbolo = declaracion.getSimbolo();
-                String tipo = generador.obtenerTipo(simbolo.getTipoDato());
+                String tipo = generadorCodigo.obtenerTipo(simbolo.getTipoDato());
 
                 for (Identificador variable : declaracion.getVariables()) {
                     if (simbolo.getTipoDato() == TipoDato.ARRAY) {

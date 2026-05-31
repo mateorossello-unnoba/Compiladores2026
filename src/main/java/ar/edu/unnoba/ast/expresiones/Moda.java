@@ -51,7 +51,7 @@ public class Moda extends Expresion {
         String punteroJ = AyudanteGeneradorCodigo.getNuevoPuntero();
         String punteroFrecuenciaActual = AyudanteGeneradorCodigo.getNuevoPuntero();
 
-        codigo.append("  ; --- INICIO ALGORITMO MODA ---\n");
+        codigo.append("  ; --- Inicio del Algoritmo de Moda ---\n");
         codigo.append("  ").append(punteroMaximaFrecuencia).append(" = alloca i32\n");
         codigo.append("  ").append(punteroModa).append(" = alloca double\n");
         codigo.append("  ").append(punteroI).append(" = alloca i32\n");
@@ -157,7 +157,7 @@ public class Moda extends Expresion {
         codigo.append(fin).append(":\n");
         String respuestaModa = AyudanteGeneradorCodigo.getNuevoPuntero();
         codigo.append("  ").append(respuestaModa).append(" = load double, double* ").append(punteroModa).append("\n");
-        codigo.append("  ; --- FIN ALGORITMO MODA ---\n");
+        codigo.append("  ; --- Fin del Algoritmo de Moda ---\n");
 
         // Guardar el resultado de la moda en la referencia de esta expresión
         this.setIrReferencia(respuestaModa);

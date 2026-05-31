@@ -73,7 +73,7 @@ import java.util.Queue;
     }
 
     // Método para procesar la indentación
-    private void processIndent(int indent, int line, int col) {
+    private void processIndent(int indent, int line, int column) {
         int top = indentStack.peek();
 
         if (indent > top) {
@@ -147,23 +147,23 @@ Booleano = "true" | "false"
 // ==================================================================
 
 <MEDICION> {
-    {Espacio}*(\r|\n|\r\n) { /* Ignorar líneas completamente en blanco */ }
+    {Espacio}*(\r|\n|\r\n)  { /* Ignorar líneas completamente en blanco */ }
     
-    " "                 { pendingIndent++; }
-    "\t"                { pendingIndent += 4; }
+    " "                     { pendingIndent++; }
+    "\t"                    { pendingIndent += 4; }
 
     // Comentario multilínea: pasa al estado COMENTARIO_MULTILINEA
-    "{*"            { pendingIndent = 0; yybegin(COMENTARIO_MULTILINEA); }
+    "{*"                    { pendingIndent = 0; yybegin(COMENTARIO_MULTILINEA); }
 
-    [^\t\r\n]       {
-                        yypushback(1); 
-                        yybegin(NORMAL);
-                        processIndent(pendingIndent, yyline, yycolumn);
-                        pendingIndent = 0;
-                        if (!pendingTokens.isEmpty()) {
-                            return pendingTokens.poll();
-                        }
-                    }
+    [^\t\r\n]               {
+                                yypushback(1); 
+                                yybegin(NORMAL);
+                                processIndent(pendingIndent, yyline, yycolumn);
+                                pendingIndent = 0;
+                                if (!pendingTokens.isEmpty()) {
+                                    return pendingTokens.poll();
+                                }
+                            }
 }
 
 // ==================================================================
@@ -174,7 +174,7 @@ Booleano = "true" | "false"
     // ------------------------------------------------------------------
     //  Espacios y comentarios se ignoran
     // ------------------------------------------------------------------
-    {Espacio}+            { /* Ignorar */ }
+    {Espacio}+          { /* Ignorar */ }
     {ComentarioLinea}   { /* Ignorar */ }
     "{*"                { yybegin(COMENTARIO_MULTILINEA); }
 
@@ -243,7 +243,8 @@ Booleano = "true" | "false"
     // ------------------------------------------------------------------
     //  Cadenas de caracteres (entrada al estado CADENA)
     // ------------------------------------------------------------------
-    \"  { cadena.setLength(0);
+    \"  {
+            cadena.setLength(0);
             cadena_linea = this.yyline;
             cadena_columna = this.yycolumn;
             yybegin(CADENA);
