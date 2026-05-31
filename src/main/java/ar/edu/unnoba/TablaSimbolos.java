@@ -46,7 +46,7 @@ public class TablaSimbolos {
                 writer.printf(formato, entradaTablaSimbolos.nombre, entradaTablaSimbolos.token, entradaTablaSimbolos.tipo, entradaTablaSimbolos.valor, entradaTablaSimbolos.longitud);
             }
 
-            System.out.println("[SISTEMA] Tabla de Símbolos generada según el formato requerido");
+            System.out.println("[SISTEMA] Tabla de Símbolos generada según el formato requerido.");
         } catch (IOException exception) {
             System.err.println("[ERROR] No se pudo generar la tabla: " + exception.getMessage());
         }

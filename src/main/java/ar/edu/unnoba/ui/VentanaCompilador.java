@@ -2,13 +2,14 @@ package ar.edu.unnoba.ui;
 
 import ar.edu.unnoba.ast.Programa;
 import ar.edu.unnoba.Lexer;
+import ar.edu.unnoba.llvm.GeneradorCodigo;
 import ar.edu.unnoba.Parser;
 import ar.edu.unnoba.sym;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.*;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
-import java.io.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -19,11 +20,14 @@ import javax.swing.border.EmptyBorder;
 
 public class VentanaCompilador extends JFrame {
     private JTextArea areaCodigo;
+    private JTextArea areaCodigoLLVM;
+    private JTabbedPane panelCodigos;
     private JTextArea areaConsola;
 
     public VentanaCompilador() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.put("TabbedPane.focus", UIManager.get("TabbedPane.background"));
         } catch (Exception exception) {}
 
         // Configuración básica de la ventana
@@ -42,22 +46,36 @@ public class VentanaCompilador extends JFrame {
         JButton botonLimpiar = crearBotonEstilizado("❌ Limpiar Consola", null);
         JButton botonCompilarLexico = crearBotonEstilizado("▶ Análisis Léxico", null); 
         JButton botonCompilarSintactico = crearBotonEstilizado("▶ Análisis Sintáctico y Semántico", null);
+        JButton botonGenerarCodigo = crearBotonEstilizado("▶ Generar Código LLVM IR", null);
+        JButton botonCompilarEjecutar = crearBotonEstilizado("▶ Compilar y Ejecutar", null);
 
         panelSuperior.add(botonCargar);
         panelSuperior.add(botonGuardar);
         panelSuperior.add(botonLimpiar);
         panelSuperior.add(botonCompilarLexico);
         panelSuperior.add(botonCompilarSintactico);
-
+        panelSuperior.add(botonGenerarCodigo);
+        panelSuperior.add(botonCompilarEjecutar);
         add(panelSuperior, BorderLayout.NORTH);
 
-        // --- ÁREA CENTRAL (Editor de Código) ---
+        // --- ÁREA CENTRAL (Editor de Código y Código LLVM) ---
+        panelCodigos = new JTabbedPane();
+        panelCodigos.setFont(new Font("SansSerif", Font.BOLD, 12));
+
         areaCodigo = new JTextArea();
         areaCodigo.setFont(new Font("Monospaced", Font.PLAIN, 15));
         areaCodigo.setMargin(new Insets(10, 10, 10, 10));
-        
         JScrollPane scrollCodigo = new JScrollPane(areaCodigo);
-        scrollCodigo.setBorder(BorderFactory.createTitledBorder(" Editor de Código "));
+
+        areaCodigoLLVM = new JTextArea();
+        areaCodigoLLVM.setFont(new Font("Monospaced", Font.PLAIN, 15));
+        areaCodigoLLVM.setMargin(new Insets(10, 10, 10, 10));
+        areaCodigoLLVM.setEditable(false);
+        areaCodigoLLVM.setBackground(new Color(245, 245, 245));
+        JScrollPane scrollCodigoLLVM = new JScrollPane(areaCodigoLLVM);
+
+        panelCodigos.addTab(" Editor de Código ", scrollCodigo);
+        panelCodigos.addTab(" Código LLVM IR ", scrollCodigoLLVM);
 
         // --- ÁREA INFERIOR (Consola de Salida) ---
         areaConsola = new JTextArea();
@@ -65,13 +83,14 @@ public class VentanaCompilador extends JFrame {
         areaConsola.setEditable(false);
         areaConsola.setMargin(new Insets(10, 10, 10, 10));
         areaConsola.setBackground(new Color(33, 33, 33));
-        areaConsola.setForeground(new Color(152, 251, 152)); 
+        areaConsola.setForeground(new Color(152, 251, 152));
         
         JScrollPane scrollConsola = new JScrollPane(areaConsola);
         scrollConsola.setBorder(BorderFactory.createTitledBorder(" Consola de Salida "));
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollCodigo, scrollConsola);
-        splitPane.setDividerLocation(380);
+        // Dividir la pantalla entre las pestañas y la consola
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, panelCodigos, scrollConsola);
+        splitPane.setDividerLocation(450);
         splitPane.setBorder(new EmptyBorder(0, 10, 10, 10));
         add(splitPane, BorderLayout.CENTER);
 
@@ -80,6 +99,8 @@ public class VentanaCompilador extends JFrame {
         botonLimpiar.addActionListener((ActionEvent event) -> limpiarConsola());
         botonCompilarLexico.addActionListener((ActionEvent event) -> analizarLexico());
         botonCompilarSintactico.addActionListener((ActionEvent event) -> analizarSintacticoSemantico());
+        botonGenerarCodigo.addActionListener((ActionEvent event) -> generarCodigo());
+        botonCompilarEjecutar.addActionListener((ActionEvent event) -> compilarEjecutar());
     }
 
     private JButton crearBotonEstilizado(String texto, Color fondo) {
@@ -136,6 +157,7 @@ public class VentanaCompilador extends JFrame {
 
     private void limpiarConsola() {
         areaConsola.setText("");
+        areaCodigoLLVM.setText("");
     }
 
     private void analizarLexico() {
@@ -245,9 +267,150 @@ public class VentanaCompilador extends JFrame {
             Process proceso = processBuilder.start();
             proceso.waitFor();
 
-            System.out.println("[SISTEMA] Árbol de Sintaxis Abstracta generado según el formato requerido");
+            System.out.println("[SISTEMA] Árbol de Sintaxis Abstracta generado según el formato requerido.");
         } catch (Exception exception) {
             System.err.println("[SISTEMA] Se creó 'ast.dot', pero no se pudo generar la imagen. Corrobore que Graphviz esté instalado y definido en el PATH del sistema.");
+        }
+    }
+
+    private void generarCodigo() {
+        String codigo = areaCodigo.getText();
+
+        if (codigo.trim().isEmpty()) {
+            areaConsola.setText("--- El editor está vacío ---");
+            return;
+        }
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(byteArrayOutputStream);
+        PrintStream oldOut = System.out;
+        PrintStream oldErr = System.err;
+        System.setOut(printStream);
+        System.setErr(printStream);
+
+        try {
+            Lexer lexico = new Lexer(new StringReader(codigo));
+            Parser parser = new Parser(lexico, new ComplexSymbolFactory());
+
+            Symbol resultado = parser.parse();
+            Programa programa = (Programa) resultado.value;
+            GeneradorCodigo generadorCodigo = new GeneradorCodigo();
+            String codigoFinal = programa.generarCodigo(generadorCodigo);
+
+            byteArrayOutputStream.reset();
+            System.out.println("--- Iniciando Generación de Código LLVM ---\n");
+
+            areaCodigoLLVM.setText(codigoFinal);
+            panelCodigos.setSelectedIndex(1);
+            
+            File archivoSalida = new File("programa.ll");
+            try (FileWriter writer = new FileWriter(archivoSalida)) {
+                writer.write(codigoFinal);
+            }
+
+            Process objeto = Runtime.getRuntime().exec(new String[]{"wsl", "clang", "-c", "-o", "programa.o", "programa.ll"});
+            leerSalidaProceso(objeto);
+
+            if (objeto.waitFor() != 0) {
+                throw new RuntimeException("Falló la generación del archivo objeto.");
+            }
+
+            Process ejecutable = Runtime.getRuntime().exec(new String[]{"wsl", "clang", "-o", "programa", "programa.o"});
+            leerSalidaProceso(ejecutable);
+
+            if (ejecutable.waitFor() != 0) {
+                throw new RuntimeException("Falló la generación del ejecutable, comprobar la existencia de librerías necesarias.");
+            }
+
+            System.out.println("[SISTEMA] Código LLVM generado y guardado en 'programa.ll' satisfactoriamente.");
+
+            System.out.println("\n--- Generación de Código LLVM finalizada sin errores ---");
+        } catch (Exception exception) {
+            System.err.println("\n[ERROR DE COMPILACIÓN] " + exception.getMessage());
+        } finally {
+            System.out.flush();
+            System.setOut(oldOut);
+            System.setErr(oldErr);
+            areaConsola.setText(byteArrayOutputStream.toString());
+        }
+    }
+
+    private void leerSalidaProceso(Process proceso) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(proceso.getInputStream()));
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        
+        BufferedReader errorReader = new BufferedReader(new InputStreamReader(proceso.getErrorStream()));
+
+        while ((line = errorReader.readLine()) != null) {
+            System.err.println("[CLANG] " + line);
+        }
+    }
+
+    private void compilarEjecutar() {
+        String codigo = areaCodigo.getText();
+
+        if (codigo.trim().isEmpty()) {
+            areaConsola.setText("--- El editor está vacío ---");
+            return;
+        }
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(byteArrayOutputStream);
+        PrintStream oldOut = System.out;
+        PrintStream oldErr = System.err;
+        System.setOut(printStream);
+        System.setErr(printStream);
+
+        try {
+            Lexer lexico = new Lexer(new StringReader(codigo));
+            Parser parser = new Parser(lexico, new ComplexSymbolFactory());
+
+            Symbol resultado = parser.parse();
+            Programa programa = (Programa) resultado.value;
+            GeneradorCodigo generadorCodigo = new GeneradorCodigo();
+            String codigoFinal = programa.generarCodigo(generadorCodigo);
+
+            byteArrayOutputStream.reset();
+            System.out.println("--- Iniciando Generación de Código y Ejecución ---\n");
+
+            areaCodigoLLVM.setText(codigoFinal);
+            panelCodigos.setSelectedIndex(1);
+            
+            File archivoSalida = new File("programa.ll");
+            try (FileWriter writer = new FileWriter(archivoSalida)) {
+                writer.write(codigoFinal);
+            }
+
+            Process objeto = Runtime.getRuntime().exec(new String[]{"wsl", "clang", "-c", "-o", "programa.o", "programa.ll"});
+            leerSalidaProceso(objeto);
+
+            if (objeto.waitFor() != 0) {
+                throw new RuntimeException("Falló la generación del archivo objeto.");
+            }
+
+            Process ejecutable = Runtime.getRuntime().exec(new String[]{"wsl", "clang", "-o", "programa", "programa.o"});
+            leerSalidaProceso(ejecutable);
+
+            if (ejecutable.waitFor() != 0) {
+                throw new RuntimeException("Falló la generación del ejecutable, comprobar la existencia de librerías necesarias.");
+            }
+
+            System.out.println("\n--- Abriendo el programa en una consola externa ---\n");
+
+            Process proceso = Runtime.getRuntime().exec(new String[]{
+                "cmd.exe", "/c", "start", "cmd.exe", "/k", "wsl ./programa"
+            });
+        } catch (Exception exception) {
+            System.err.println("\n[ERROR DE EJECUCIÓN] " + exception.getMessage() + "\n");
+        } finally {
+            System.out.flush();
+            System.setOut(oldOut);
+            System.setErr(oldErr);
+            areaConsola.setText(byteArrayOutputStream.toString());
         }
     }
 }

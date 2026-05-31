@@ -193,7 +193,7 @@ sentencia_print ::= PRINT PARENTESIS_IZQ expr:e PARENTESIS_DER {:
         :} | PRINT PARENTESIS_IZQ CADENA:c PARENTESIS_DER {:
             System.out.println("[PARSER] REGLA: sentencia_print -> PRINT ( CADENA )");
             parser.tablaSimbolos.agregarString(c);
-            RESULT = new Print(new Constante(c, null, 0));
+            RESULT = new Print(new Constante(c, TipoDato.STRING, 0));
         :} ;
 
 sentencia_control ::= BREAK {:
@@ -347,8 +347,9 @@ factor ::= RESTA factor:e {:
         :} | IDENTIFICADOR:id CORCHETE_IZQ expr:e CORCHETE_DER {:
             TipoDato tipoVariable = ValidadorSemantico.verificarExistenciaVariable(id, parser.tablaSimbolos);
             TipoDato resultado = ValidadorSemantico.verificarAccesoArreglo(id, tipoVariable, e.getTipoDato());
+            Simbolo simbolo = parser.tablaSimbolos.obtenerSimbolo(id);
             System.out.println("[PARSER] REGLA: factor -> IDENTIFICADOR [ expr ]");
-            RESULT = new AccesoArreglo(new Identificador(id, tipoVariable, 0), e);
+            RESULT = new AccesoArreglo(new Identificador(id, tipoVariable, simbolo.getDimensionArreglo()), e);
         :} | ENTERO:e {:
             System.out.println("[PARSER] REGLA: factor -> ENTERO");
             RESULT = new Constante(e, TipoDato.INT, 0);

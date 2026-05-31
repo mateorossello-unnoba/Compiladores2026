@@ -1,5 +1,6 @@
 package ar.edu.unnoba.ast;
 
+import ar.edu.unnoba.llvm.GeneradorCodigo;
 import java.util.List;
 
 public class Clausula extends Nodo {
@@ -24,6 +25,12 @@ public class Clausula extends Nodo {
         }
 
         return resultado.toString();
+    }
+
+    @Override
+    public String generarCodigo(GeneradorCodigo generadorCodigo) {
+        // La generación de código para las cláusulas se maneja en el nodo While, por lo que no es necesario generar código aquí.
+        return "";
     }
 
     public Expresion getCondicion() {

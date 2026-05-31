@@ -18,4 +18,12 @@ public abstract class OperacionBinaria extends Expresion {
         String miId = this.getId();
         return super.graficar(idPadre) + izquierda.graficar(miId) + derecha.graficar(miId);
     }
+
+    public Expresion getIzquierda() {
+        return izquierda;
+    }
+
+    public Expresion getDerecha() {
+        return derecha;
+    }
 }

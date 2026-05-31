@@ -1,9 +1,10 @@
 package ar.edu.unnoba.ast;
 
+import ar.edu.unnoba.llvm.GeneradorCodigo;
 import java.util.List;
 
 public abstract class Nodo {
-    private String etiqueta;
+    protected String etiqueta;
 
     public Nodo(String etiqueta) {
         this.etiqueta = etiqueta;
@@ -38,6 +39,8 @@ public abstract class Nodo {
 
         return grafico.toString();
     }
+
+    public abstract String generarCodigo(GeneradorCodigo generador);
 
     protected String getId() {
         return "N" + System.identityHashCode(this);
