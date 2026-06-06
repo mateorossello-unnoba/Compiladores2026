@@ -19,8 +19,8 @@ public class Resta extends OperacionMatematicaBinaria {
         }
 
         // Generar código para los operandos izquierdo y derecho, asegurando que ambos operandos sean del tipo final esperado
-        String codigoIzquierda = generadorCodigo.generarConConversion(this.izquierda, this.getTipoDato());
-        String codigoDerecha = generadorCodigo.generarConConversion(this.derecha, this.getTipoDato());
+        String codigoIzquierda = this.izquierda.generarCodigo(generadorCodigo);
+        String codigoDerecha = this.derecha.generarCodigo(generadorCodigo);
 
         String puntero = AyudanteGeneradorCodigo.getNuevoPuntero();
         this.setIrReferencia(puntero);

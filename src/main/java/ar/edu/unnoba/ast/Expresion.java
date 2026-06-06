@@ -29,4 +29,9 @@ public abstract class Expresion extends Nodo {
     public void setIrReferencia(String irReferencia) {
         this.irReferencia = irReferencia;
     }
+
+    @Override
+    protected String getEtiqueta() {
+        return super.getEtiqueta() + " (" + this.tipoDato + ")";
+    }
 }

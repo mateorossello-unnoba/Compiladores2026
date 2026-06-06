@@ -2,6 +2,7 @@ package ar.edu.unnoba.ui;
 
 import ar.edu.unnoba.ast.Programa;
 import ar.edu.unnoba.Lexer;
+import ar.edu.unnoba.llvm.AyudanteGeneradorCodigo;
 import ar.edu.unnoba.llvm.GeneradorCodigo;
 import ar.edu.unnoba.Parser;
 import ar.edu.unnoba.sym;
@@ -205,6 +206,8 @@ public class VentanaCompilador extends JFrame {
     }
 
     private void analizarSintacticoSemantico() {
+        AyudanteGeneradorCodigo.reset();
+
         String codigo = areaCodigo.getText();
 
         if (codigo.trim().isEmpty()) {
@@ -274,6 +277,8 @@ public class VentanaCompilador extends JFrame {
     }
 
     private void generarCodigo() {
+        AyudanteGeneradorCodigo.reset();
+
         String codigo = areaCodigo.getText();
 
         if (codigo.trim().isEmpty()) {
@@ -351,6 +356,8 @@ public class VentanaCompilador extends JFrame {
     }
 
     private void compilarEjecutar() {
+        AyudanteGeneradorCodigo.reset();
+
         String codigo = areaCodigo.getText();
 
         if (codigo.trim().isEmpty()) {

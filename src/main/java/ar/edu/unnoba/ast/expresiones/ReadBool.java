@@ -27,9 +27,9 @@ public class ReadBool extends Expresion {
         String punteroResultado = AyudanteGeneradorCodigo.getNuevoPuntero();
         String instruccionLeerValor = "  " + punteroResultado + " = load i32, i32* " + punteroMemoria + "\n";
 
-        // Convertir el entero leído a booleano (0 se considera false, cualquier otro valor se considera true)
+        // Convertir el entero leído a booleano (0 se interpreta como false, cualquier otro valor se interpreta como true)
         String punteroBooleano = AyudanteGeneradorCodigo.getNuevoPuntero();
-        String instruccionConvertir = "  " + punteroBooleano + " = xor i1 " + punteroResultado + ", false\n";
+        String instruccionConvertir = "  " + punteroBooleano + " = icmp ne i32 " + punteroResultado + ", 0\n";
 
         this.setIrReferencia(punteroBooleano);
 
@@ -38,7 +38,7 @@ public class ReadBool extends Expresion {
         // %puntero.1 = alloca i32
         // call i32 (i8*, ...) @scanf(i8* @.str.0, i32* %puntero.1)
         // %puntero.2 = load i32, i32* %puntero.1
-        // %puntero.3 = xor i1 %puntero.2, false
+        // %puntero.3 = icmp ne i32 %puntero.2, 0
         return instruccionAsignacion + instruccionEscanear + instruccionLeerValor + instruccionConvertir;
     }
 }

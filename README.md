@@ -15,6 +15,7 @@ Este proyecto es la entrega final del trabajo práctico de Compiladores. Impleme
 ```bash
 / (Raíz del proyecto)
 ├── pom.xml                          # Configuración Maven (plugins JFlex, CUP)
+├── input.txt                        # Archivo de pruebas
 ├── libs/
 │   ├── java-cup-11b-runtime.jar     # Runtime de CUP
 │   └── java-cup-11b.jar             # Generador de parser

@@ -1,7 +1,7 @@
 package ar.edu.unnoba.llvm;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class AyudanteGeneradorCodigo {
     private static int proximoPunteroId = 0;
@@ -9,7 +9,7 @@ public class AyudanteGeneradorCodigo {
     private static int proximaEtiquetaId = 0;
 
     private static int proximoStringId = 0;
-    private static List<String> strings = new ArrayList<>();
+    private static Map<String, String> strings = new LinkedHashMap<>();
         
     private AyudanteGeneradorCodigo() {
 
@@ -31,24 +31,55 @@ public class AyudanteGeneradorCodigo {
     }
 
     public static String registrarString(String valor) {
+        if (strings.containsKey(valor)) {
+            return strings.get(valor);
+        }
+
         String nombre = "@.str." + proximoStringId;
         proximoStringId += 1;
-        
-        int longitud = valor.replace("\\0A", " ").length() + 1;
 
-        String declaracion = nombre + " = private unnamed_addr constant [" + longitud + " x i8] c\"" + valor + "\\00\"\n";
-        strings.add(declaracion);
-
+        strings.put(valor, nombre);
         return nombre;
     }
 
     public static String obtenerStrings() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (String string : strings) {
-            stringBuilder.append(string);
+        for (Map.Entry<String, String> entry : strings.entrySet()) {
+            String valor = entry.getKey();
+            String nombre = entry.getValue();
+
+            String contable = valor.replace("\"", "\\22");
+            contable = contable.replace("\n", "\\0A");
+
+            int longitud = calcularLongitud(contable) + 1;
+
+            stringBuilder.append(nombre).append(" = private unnamed_addr constant [").append(longitud).append(" x i8] c\"").append(contable).append("\\00\"\n");
         }
 
         return stringBuilder.toString();
+    }
+
+    private static int calcularLongitud(String string) {
+        int length = 0;
+
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) == '\\' && i + 2 < string.length()) {
+                i += 2; 
+                length++;
+            } else {
+                length++;
+            }
+        }
+
+        return length;
+    }
+
+    public static void reset() {
+        proximoPunteroId = 0;
+        proximoPunteroGlobalId = 0;
+        proximaEtiquetaId = 0;
+        proximoStringId = 0;
+        strings.clear();
     }
 }

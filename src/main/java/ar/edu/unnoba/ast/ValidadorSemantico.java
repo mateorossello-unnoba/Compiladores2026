@@ -85,9 +85,17 @@ public class ValidadorSemantico {
     // --- OPERACIONES MATEMÁTICAS --- //
 
     // Verifica que una operación matemática binaria sea válida para los tipos de dato de sus operandos y devuelve el tipo de dato resultante
-    public static TipoDato verificarOperacionMatematicaBinaria(TipoDato tipoIzquierda, TipoDato tipoDerecha) throws Exception {
+    public static TipoDato verificarOperacionMatematicaBinaria(TipoDato tipoIzquierda, TipoDato tipoDerecha, int tamañoIzquierda, int tamañoDerecha) throws Exception {
         if (tipoIzquierda == TipoDato.BOOLEAN || tipoDerecha == TipoDato.BOOLEAN) {
             throw new Exception("Error Semántico: No se pueden realizar operaciones aritméticas con valores de tipo BOOLEAN.");
+        }
+
+        if (tipoIzquierda == TipoDato.ARRAY && tipoDerecha == TipoDato.ARRAY) {
+            if (tamañoIzquierda != tamañoDerecha) {
+                throw new Exception("Error Semántico: No se pueden realizar operaciones aritméticas entre arreglos de tamaños diferentes (" + tamañoIzquierda + " y " + tamañoDerecha + ").");
+            }
+
+            return TipoDato.ARRAY;
         }
 
         if (tipoIzquierda == TipoDato.ARRAY || tipoDerecha == TipoDato.ARRAY) {

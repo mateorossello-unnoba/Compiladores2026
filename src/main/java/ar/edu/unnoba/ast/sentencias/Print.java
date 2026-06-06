@@ -60,6 +60,12 @@ public class Print extends Sentencia {
             case BOOLEAN -> {
                 formato = "%d\\0A";
                 longitudFormato = 4;
+
+                String valorBooleano = AyudanteGeneradorCodigo.getNuevoPuntero();
+                String instruccionValorBooleano = "  " + valorBooleano + " = zext i1 " + this.expresion.getIrReferencia() + " to i32\n";
+                codigoExpresion += instruccionValorBooleano;
+                this.expresion.setIrReferencia(valorBooleano);
+                tipoDato = TipoDato.INT;
             }
             case FLOAT -> {
                 formato = "%f\\0A";

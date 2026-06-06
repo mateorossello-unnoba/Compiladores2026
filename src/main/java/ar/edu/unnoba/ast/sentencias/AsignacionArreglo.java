@@ -3,7 +3,6 @@ package ar.edu.unnoba.ast.sentencias;
 import ar.edu.unnoba.ast.Expresion;
 import ar.edu.unnoba.ast.expresiones.Identificador;
 import ar.edu.unnoba.ast.Sentencia;
-import ar.edu.unnoba.ast.TipoDato;
 import ar.edu.unnoba.llvm.AyudanteGeneradorCodigo;
 import ar.edu.unnoba.llvm.GeneradorCodigo;
 
@@ -31,7 +30,7 @@ public class AsignacionArreglo extends Sentencia {
 
         String codigoIndice = this.indice.generarCodigo(generadorCodigo);
         codigo.append(codigoIndice);
-        String codigoValor = generadorCodigo.generarConConversion(this.valor, TipoDato.FLOAT);
+        String codigoValor = this.valor.generarCodigo(generadorCodigo);
         codigo.append(codigoValor);
 
         String referenciaIndice = this.indice.getIrReferencia();

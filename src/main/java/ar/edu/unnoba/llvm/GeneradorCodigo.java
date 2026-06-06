@@ -47,9 +47,9 @@ public class GeneradorCodigo {
         boolean izquierdaEsArreglo = izquierda.getTipoDato() == TipoDato.ARRAY;
         int n = izquierdaEsArreglo ? izquierda.getDimensionArreglo() : derecha.getDimensionArreglo();
 
-        codigo.append(generarConConversion(izquierda, izquierdaEsArreglo ? TipoDato.ARRAY : TipoDato.FLOAT));
-        codigo.append(generarConConversion(derecha, izquierda.getTipoDato() == TipoDato.ARRAY && derecha.getTipoDato() == TipoDato.ARRAY ? TipoDato.ARRAY : TipoDato.FLOAT));
-
+        codigo.append(izquierda.generarCodigo(this));
+        codigo.append(derecha.generarCodigo(this));
+        
         String punteroArregloResultado = AyudanteGeneradorCodigo.getNuevoPuntero();
         String punteroI = AyudanteGeneradorCodigo.getNuevoPuntero();
 
@@ -133,8 +133,8 @@ public class GeneradorCodigo {
         boolean izquierdaEsArreglo = izquierda.getTipoDato() == TipoDato.ARRAY;
         int n = izquierdaEsArreglo ? izquierda.getDimensionArreglo() : derecha.getDimensionArreglo();
 
-        codigo.append(generarConConversion(izquierda, izquierdaEsArreglo ? TipoDato.ARRAY : TipoDato.FLOAT));
-        codigo.append(generarConConversion(derecha, izquierda.getTipoDato() == TipoDato.ARRAY && derecha.getTipoDato() == TipoDato.ARRAY ? TipoDato.ARRAY : TipoDato.FLOAT));
+        codigo.append(izquierda.generarCodigo(this));
+        codigo.append(derecha.generarCodigo(this));
 
         String punteroResultadoBooleano = AyudanteGeneradorCodigo.getNuevoPuntero();
         String punteroI = AyudanteGeneradorCodigo.getNuevoPuntero();
@@ -245,23 +245,6 @@ public class GeneradorCodigo {
             case STRING -> "i8*";
             default -> throw new IllegalStateException("Tipo de dato desconocido.");
         };
-    }
-
-    public String generarConConversion(Expresion expresion, TipoDato tipoEsperado) {
-        String codigoBase = expresion.generarCodigo(this);
-
-        if (expresion.getTipoDato() == tipoEsperado) {
-            return codigoBase;
-        }
-
-        if (tipoEsperado == TipoDato.FLOAT && expresion.getTipoDato() == TipoDato.INT) {
-            String nuevoPuntero = AyudanteGeneradorCodigo.getNuevoPuntero();
-            String instruccionConversion = "  " + nuevoPuntero + " = sitofp i32 " + expresion.getIrReferencia() + " to double\n";
-            expresion.setIrReferencia(nuevoPuntero);
-            return codigoBase + instruccionConversion;
-        }
-
-        throw new IllegalStateException("Conversión no soportada de " + expresion.getTipoDato() + " a " + tipoEsperado + ".");
     }
 
     public String generarBloqueCodigo(List<Sentencia> sentencias) {

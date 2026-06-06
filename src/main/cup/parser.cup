@@ -37,6 +37,108 @@ parser code {:
         System.err.println("Error Fatal: No se pudo recuperar del error en la línea " + linea + ", columna " + columna + ".");
         throw new Exception("Error Sintáctico Fatal.");
     }
+
+    public Expresion[] castearOperandos(Expresion e1, Expresion e2) {
+        if (e1.getTipoDato() == TipoDato.INT && e2.getTipoDato() == TipoDato.FLOAT) {
+            return new Expresion[]{ new Conversion(e1, TipoDato.FLOAT), e2 };
+        } else if (e1.getTipoDato() == TipoDato.FLOAT && e2.getTipoDato() == TipoDato.INT) {
+            return new Expresion[]{ e1, new Conversion(e2, TipoDato.FLOAT) };
+        }
+
+        return new Expresion[]{ e1, e2 };
+    }
+
+    // Estilo de moda generada. Los elementos van desde lo más interno a lo más externo.
+
+    /*
+        public double encontrarModa(double[] arreglo) {
+            if (arreglo.length == 0) return -1.0;
+            double moda = arreglo[0];
+            int frecuenciaMaxima = 0;
+            for (int i = 0; i < arreglo.length; i++) {
+                int frecuenciaActual = 0;
+                for (int j = 0; j < arreglo.length; j++) {
+                    if (arreglo[i] == arreglo[j]) frecuenciaActual++;
+                }
+                if (frecuenciaActual > frecuenciaMaxima) {
+                    frecuenciaMaxima = frecuenciaActual;
+                    moda = arreglo[i];
+                }
+            }
+            return moda;
+        }
+    */
+
+    // Identificadores para el algoritmo (Coinciden con la clase empaquetadora final Moda.java)
+    private Identificador idArray(int n) { return new Identificador("moda_array", TipoDato.ARRAY, n); }
+    private Identificador idIndiceExterno() { return new Identificador("moda_indice_externo", TipoDato.INT, 0); }
+    private Identificador idIndiceInterno() { return new Identificador("moda_indice_interno", TipoDato.INT, 0); }
+    private Identificador idFrecuenciaActual() { return new Identificador("moda_frecuencia_actual", TipoDato.INT, 0); }
+    private Identificador idFrecuenciaMaxima() { return new Identificador("moda_frecuencia_maxima", TipoDato.INT, 0); }
+    private Identificador idValorModa() { return new Identificador("moda_valor_resultado", TipoDato.FLOAT, 0); }
+    
+    private Constante constanteCero() { return new Constante("0", TipoDato.INT, 0); }
+    private Constante constanteUno() { return new Constante("1", TipoDato.INT, 0); }
+    private Constante constanteN(int n) { return new Constante(String.valueOf(n), TipoDato.INT, 0); }
+
+    public Expresion construirModa(Expresion arregloEntrada) {
+        int n = arregloEntrada.getDimensionArreglo();
+        List<Sentencia> algoritmo = new ArrayList<>();
+        
+        // Inicialización de las variables
+        algoritmo.add(new Asignacion(idArray(n), arregloEntrada));
+
+        List<Sentencia> cuerpoVacio = new ArrayList<>();
+        tablaSimbolos.agregarString("La lista esta vacia.\\n");
+        cuerpoVacio.add(new Print(new Constante("La lista esta vacia.\\n", TipoDato.STRING, 0)));
+        cuerpoVacio.add(new Asignacion(idValorModa(), new Constante("-1.0", TipoDato.FLOAT, 0)));
+
+        List<Sentencia> cuerpoNormal = new ArrayList<>();
+        cuerpoNormal.add(new Asignacion(idFrecuenciaMaxima(), constanteCero()));
+        cuerpoNormal.add(new Asignacion(idIndiceExterno(), constanteCero()));
+        cuerpoNormal.add(new Asignacion(idValorModa(), new AccesoArreglo(idArray(n), constanteCero())));
+        
+        // --- BUCLE INTERNO ---
+        AccesoArreglo elementoExterno = new AccesoArreglo(idArray(n), idIndiceExterno());
+        AccesoArreglo elementoInterno = new AccesoArreglo(idArray(n), idIndiceInterno());
+        
+        List<Sentencia> cuerpoIfIguales = new ArrayList<>();
+        Suma incrementoFrecuencia = new Suma(TipoDato.INT, idFrecuenciaActual(), constanteUno());
+        incrementoFrecuencia.setDimensionArreglo(0);
+        cuerpoIfIguales.add(new Asignacion(idFrecuenciaActual(), incrementoFrecuencia));
+        If ifElementosIguales = new If(new Igual(elementoExterno, elementoInterno), cuerpoIfIguales, new ArrayList<Sentencia>());
+        
+        List<Sentencia> cuerpoBucleInterno = new ArrayList<>();
+        cuerpoBucleInterno.add(ifElementosIguales);
+        Suma incrementoIndiceInterno = new Suma(TipoDato.INT, idIndiceInterno(), constanteUno());
+        incrementoIndiceInterno.setDimensionArreglo(0);
+        cuerpoBucleInterno.add(new Asignacion(idIndiceInterno(), incrementoIndiceInterno));
+        While bucleInterno = new While(new Clausula("BLOQUE_BUCLE_INTERNO", new Menor(idIndiceInterno(), constanteN(n)), cuerpoBucleInterno), new ArrayList<Clausula>());
+        
+        // --- BUCLE EXTERNO ---
+        List<Sentencia> cuerpoIfNuevaModa = new ArrayList<>();
+        cuerpoIfNuevaModa.add(new Asignacion(idFrecuenciaMaxima(), idFrecuenciaActual()));
+        cuerpoIfNuevaModa.add(new Asignacion(idValorModa(), new AccesoArreglo(idArray(n), idIndiceExterno())));
+        If ifNuevaModa = new If(new Mayor(idFrecuenciaActual(), idFrecuenciaMaxima()), cuerpoIfNuevaModa, new ArrayList<Sentencia>());
+        
+        List<Sentencia> cuerpoBucleExterno = new ArrayList<>();
+        cuerpoBucleExterno.add(new Asignacion(idIndiceInterno(), constanteCero()));
+        cuerpoBucleExterno.add(new Asignacion(idFrecuenciaActual(), constanteCero()));
+        cuerpoBucleExterno.add(bucleInterno);
+        cuerpoBucleExterno.add(ifNuevaModa);
+        Suma incrementoIndiceExterno = new Suma(TipoDato.INT, idIndiceExterno(), constanteUno());
+        incrementoIndiceExterno.setDimensionArreglo(0);
+        cuerpoBucleExterno.add(new Asignacion(idIndiceExterno(), incrementoIndiceExterno));
+        While bucleExterno = new While(new Clausula("BLOQUE_BUCLE_EXTERNO", new Menor(idIndiceExterno(), constanteN(n)), cuerpoBucleExterno), new ArrayList<Clausula>());
+        
+        cuerpoNormal.add(bucleExterno);
+
+        If comprobacionArregloVacio = new If(new Igual(constanteN(n), constanteCero()), cuerpoVacio, cuerpoNormal);
+        algoritmo.add(comprobacionArregloVacio);
+        
+        // Retornar paquete final
+        return new Moda(algoritmo, idValorModa(), n);
+    }
 :}
 
 // ---------------------------------------------------------
@@ -177,12 +279,22 @@ sentencia_asignacion ::= IDENTIFICADOR:id ASIGNACION expr:e {:
             TipoDato tipoVariable = ValidadorSemantico.verificarExistenciaVariable(id, parser.tablaSimbolos);
             Simbolo simboloVariable = parser.tablaSimbolos.obtenerSimbolo(id);
             ValidadorSemantico.verificarAsignacion(tipoVariable, e.getTipoDato(), simboloVariable.getDimensionArreglo(), e.getDimensionArreglo());
+            
+            if ((tipoVariable == TipoDato.FLOAT || tipoVariable == TipoDato.ARRAY) && e.getTipoDato() == TipoDato.INT) {
+                e = new Conversion(e, TipoDato.FLOAT);
+            }
+            
             System.out.println("[PARSER] REGLA: sentencia_asignacion -> IDENTIFICADOR ASIGNACION expr");
             RESULT = new Asignacion(new Identificador(id, tipoVariable, simboloVariable.getDimensionArreglo()), e);
         :} | IDENTIFICADOR:id CORCHETE_IZQ expr:idx CORCHETE_DER ASIGNACION expr:e {:
             TipoDato tipoVariable = ValidadorSemantico.verificarExistenciaVariable(id, parser.tablaSimbolos);
             Simbolo simboloVariable = parser.tablaSimbolos.obtenerSimbolo(id);
             ValidadorSemantico.verificarAsignacionArreglo(id, tipoVariable, idx.getTipoDato(), e.getTipoDato());
+
+            if (tipoVariable == TipoDato.ARRAY && e.getTipoDato() == TipoDato.INT) {
+                e = new Conversion(e, TipoDato.FLOAT);
+            }
+
             System.out.println("[PARSER] REGLA: sentencia_asignacion -> IDENTIFICADOR [ expr ] ASIGNACION expr");
             RESULT = new AsignacionArreglo(new Identificador(id, tipoVariable, simboloVariable.getDimensionArreglo()), idx, e);
         :} ;
@@ -273,26 +385,56 @@ expr_not ::= NEGACION expr_not:e {:
 // (No son asociativas, por lo que fuerzan a que se compare un valor aritmético con otro)
 expr_rel ::= expr_arit:e1 IGUAL expr_arit:e2 {:
             TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria("==", e1.getTipoDato(), e2.getTipoDato());
+            
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit IGUAL expr_arit");
             RESULT = new Igual(e1, e2);
         :} | expr_arit:e1 DESIGUAL expr_arit:e2 {:
             TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria("!=", e1.getTipoDato(), e2.getTipoDato());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit DESIGUAL expr_arit");
             RESULT = new Desigual(e1, e2);
         :} | expr_arit:e1 MAYOR_IGUAL expr_arit:e2 {:
             TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria(">=", e1.getTipoDato(), e2.getTipoDato());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit MAYOR_IGUAL expr_arit");
             RESULT = new MayorIgual(e1, e2);
         :} | expr_arit:e1 MENOR_IGUAL expr_arit:e2 {:
             TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria("<=", e1.getTipoDato(), e2.getTipoDato());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit MENOR_IGUAL expr_arit");
             RESULT = new MenorIgual(e1, e2);
         :} | expr_arit:e1 MAYOR expr_arit:e2 {:
             TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria(">", e1.getTipoDato(), e2.getTipoDato());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit MAYOR expr_arit");
             RESULT = new Mayor(e1, e2);
         :} | expr_arit:e1 MENOR expr_arit:e2 {:
             TipoDato resultado = ValidadorSemantico.verificarOperacionRelacionalBinaria("<", e1.getTipoDato(), e2.getTipoDato());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: expr_rel -> expr_arit MENOR expr_arit");
             RESULT = new Menor(e1, e2);
         :} | expr_arit:e {: RESULT = e; :} ;
@@ -300,13 +442,23 @@ expr_rel ::= expr_arit:e1 IGUAL expr_arit:e2 {:
 // --- EXPRESIONES ARITMÉTICAS (+, -) ---
 // (Asociativas por izquierda)
 expr_arit ::= expr_arit:e1 SUMA term:e2 {:
-            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato());
+            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato(), e1.getDimensionArreglo(), e2.getDimensionArreglo());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: expr_arit -> expr_arit SUMA term");
             Suma suma = new Suma(resultado, e1, e2);
             suma.setDimensionArreglo(e1.getTipoDato() == TipoDato.ARRAY ? e1.getDimensionArreglo() : e2.getDimensionArreglo());
             RESULT = suma;
         :} | expr_arit:e1 RESTA term:e2 {:
-            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato());
+            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato(), e1.getDimensionArreglo(), e2.getDimensionArreglo());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: expr_arit -> expr_arit RESTA term");
             Resta resta = new Resta(resultado, e1, e2);
             resta.setDimensionArreglo(e1.getTipoDato() == TipoDato.ARRAY ? e1.getDimensionArreglo() : e2.getDimensionArreglo());
@@ -316,13 +468,23 @@ expr_arit ::= expr_arit:e1 SUMA term:e2 {:
 // --- TÉRMINOS (*, /) ---
 // (Tienen mayor precedencia que la suma o resta)
 term ::= term:e1 MULTIPLICACION factor:e2 {: 
-            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato());
+            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato(), e1.getDimensionArreglo(), e2.getDimensionArreglo());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: term -> term MULTIPLICACION factor");
             Multiplicacion multiplicacion = new Multiplicacion(resultado, e1, e2);
             multiplicacion.setDimensionArreglo(e1.getTipoDato() == TipoDato.ARRAY ? e1.getDimensionArreglo() : e2.getDimensionArreglo());
             RESULT = multiplicacion;
         :} | term:e1 DIVISION factor:e2 {: 
-            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato());
+            TipoDato resultado = ValidadorSemantico.verificarOperacionMatematicaBinaria(e1.getTipoDato(), e2.getTipoDato(), e1.getDimensionArreglo(), e2.getDimensionArreglo());
+                        
+            Expresion[] operandos = parser.castearOperandos(e1, e2);
+            e1 = operandos[0];
+            e2 = operandos[1];
+            
             System.out.println("[PARSER] REGLA: term -> term DIVISION factor");
             Division division = new Division(resultado, e1, e2);
             division.setDimensionArreglo(e1.getTipoDato() == TipoDato.ARRAY ? e1.getDimensionArreglo() : e2.getDimensionArreglo());
@@ -379,5 +541,5 @@ factor ::= RESTA factor:f {:
 expr_moda ::= MODA PARENTESIS_IZQ expr:e PARENTESIS_DER {:
             TipoDato resultado = ValidadorSemantico.verificarModa(e.getTipoDato());
             System.out.println("[PARSER] REGLA: expr_moda -> MODA ( expr )");
-            RESULT = new Moda(e);
+            RESULT = parser.construirModa(e);
         :} ;

@@ -38,7 +38,7 @@ public class Asignacion extends Sentencia {
                 if (this.valor instanceof Constante) {
                     return asignarArreglo();
                 } else {
-                    return copiarArreglo();
+                    return copiarArreglo(generadorCodigo);
                 }
             } else {
                 return asignarArregloEscalar(generadorCodigo);
@@ -67,11 +67,19 @@ public class Asignacion extends Sentencia {
         return codigo.toString();
     }
 
-    private String copiarArreglo() {
+    private String copiarArreglo(GeneradorCodigo generadorCodigo) {
         StringBuilder codigo = new StringBuilder();
         int dimension = this.variable.getDimensionArreglo();
         String nombreDestino = this.variable.getNombre();
-        String nombreOrigen = ((Identificador) this.valor).getNombre();
+
+        codigo.append(this.valor.generarCodigo(generadorCodigo));
+
+        String punteroOrigenValor;
+        if (this.valor instanceof Identificador) {
+            punteroOrigenValor = "%" + ((Identificador) this.valor).getNombre();
+        } else {
+            punteroOrigenValor = this.valor.getIrReferencia();
+        }
 
         codigo.append("  ; --- Copia de Arreglo ---\n");
 
@@ -97,7 +105,7 @@ public class Asignacion extends Sentencia {
         codigo.append(cuerpoCiclo).append(":\n");
         
         String punteroOrigen = AyudanteGeneradorCodigo.getNuevoPuntero();
-        codigo.append("  ").append(punteroOrigen).append(" = getelementptr [").append(dimension).append(" x double], [").append(dimension).append(" x double]* %").append(nombreOrigen).append(", i32 0, i32 ").append(valorI).append("\n");
+        codigo.append("  ").append(punteroOrigen).append(" = getelementptr [").append(dimension).append(" x double], [").append(dimension).append(" x double]* ").append(punteroOrigenValor).append(", i32 0, i32 ").append(valorI).append("\n");
         String valorCelda = AyudanteGeneradorCodigo.getNuevoPuntero();
         codigo.append("  ").append(valorCelda).append(" = load double, double* ").append(punteroOrigen).append("\n");
 
@@ -119,7 +127,7 @@ public class Asignacion extends Sentencia {
         StringBuilder codigo = new StringBuilder();
         codigo.append("  ; --- Asignación de Escalar a Arreglo ---\n");
         
-        codigo.append(generadorCodigo.generarConConversion(this.valor, TipoDato.FLOAT));
+        codigo.append(this.valor.generarCodigo(generadorCodigo));
         String referenciaValor = this.valor.getIrReferencia();
         int dimension = this.variable.getDimensionArreglo();
 
@@ -159,7 +167,7 @@ public class Asignacion extends Sentencia {
 
     private String asignarEscalar(GeneradorCodigo generadorCodigo) {
         TipoDato tipoDestino = this.variable.getTipoDato();
-        String codigoValor = generadorCodigo.generarConConversion(this.valor, tipoDestino);
+        String codigoValor = this.valor.generarCodigo(generadorCodigo);
         String tipo = generadorCodigo.obtenerTipo(tipoDestino);
         
         String instruccionAsignacion = "  store " + tipo + " " + this.valor.getIrReferencia() + ", " + tipo + "* %" + this.variable.getNombre() + "\n";
