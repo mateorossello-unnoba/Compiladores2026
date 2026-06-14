@@ -14,6 +14,10 @@ public abstract class Expresion extends Nodo {
         return tipoDato;
     }
 
+    public void setTipoDato(TipoDato tipoDato) {
+        this.tipoDato = tipoDato;
+    }
+
     public int getDimensionArreglo() {
         return dimensionArreglo;
     }

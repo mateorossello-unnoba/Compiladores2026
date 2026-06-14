@@ -33,13 +33,7 @@ public class Moda extends Expresion {
     public String generarCodigo(GeneradorCodigo generadorCodigo) {
         StringBuilder codigo = new StringBuilder();
         
-        codigo.append("  ; --- VARIABLES LOCALES DE MODA ---\n");
-        codigo.append("  %moda_array = alloca [").append(this.dimensionArreglo).append(" x double]\n");
-        codigo.append("  %moda_indice_externo = alloca i32\n");
-        codigo.append("  %moda_indice_interno = alloca i32\n");
-        codigo.append("  %moda_frecuencia_actual = alloca i32\n");
-        codigo.append("  %moda_frecuencia_maxima = alloca i32\n");
-        codigo.append("  %moda_valor_resultado = alloca double\n");
+        codigo.append("  ; --- Algoritmo de Moda ---\n");
 
         for (Sentencia sentencia : sentencias) {
             codigo.append(sentencia.generarCodigo(generadorCodigo));

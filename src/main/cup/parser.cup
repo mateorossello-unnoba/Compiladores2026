@@ -20,6 +20,10 @@ parser code {:
     
     public int cantidadCiclosActivos = 0;
 
+    public List<Declaracion> declaracionesPrograma = new ArrayList<>();
+
+    public int contadorModa = 0;
+
     // Método para manejar errores sintácticos recuperables
     public void syntax_error(Symbol symbol) {
         ComplexSymbol complexSymbol = (ComplexSymbol) symbol;
@@ -68,68 +72,90 @@ parser code {:
             return moda;
         }
     */
-
-    // Identificadores para el algoritmo (Coinciden con la clase empaquetadora final Moda.java)
-    private Identificador idArray(int n) { return new Identificador("moda_array", TipoDato.ARRAY, n); }
-    private Identificador idIndiceExterno() { return new Identificador("moda_indice_externo", TipoDato.INT, 0); }
-    private Identificador idIndiceInterno() { return new Identificador("moda_indice_interno", TipoDato.INT, 0); }
-    private Identificador idFrecuenciaActual() { return new Identificador("moda_frecuencia_actual", TipoDato.INT, 0); }
-    private Identificador idFrecuenciaMaxima() { return new Identificador("moda_frecuencia_maxima", TipoDato.INT, 0); }
-    private Identificador idValorModa() { return new Identificador("moda_valor_resultado", TipoDato.FLOAT, 0); }
     
     private Constante constanteCero() { return new Constante("0", TipoDato.INT, 0); }
     private Constante constanteUno() { return new Constante("1", TipoDato.INT, 0); }
     private Constante constanteN(int n) { return new Constante(String.valueOf(n), TipoDato.INT, 0); }
 
+    private Identificador array(String prefijo, int n) { return new Identificador(prefijo + "array", TipoDato.ARRAY, n); }
+    private Identificador indiceExterno(String prefijo) { return new Identificador(prefijo + "indice_externo", TipoDato.INT, 0); }
+    private Identificador indiceInterno(String prefijo) { return new Identificador(prefijo + "indice_interno", TipoDato.INT, 0); }
+    private Identificador frecuenciaActual(String prefijo) { return new Identificador(prefijo + "frecuencia_actual", TipoDato.INT, 0); }
+    private Identificador frecuenciaMaxima(String prefijo) { return new Identificador(prefijo + "frecuencia_maxima", TipoDato.INT, 0); }
+    private Identificador valorModa(String prefijo) { return new Identificador(prefijo + "valor_resultado", TipoDato.FLOAT, 0); }
+
     public Expresion construirModa(Expresion arregloEntrada) {
+        contadorModa++;
+        String prefijo = "_moda" + contadorModa + "_";
         int n = arregloEntrada.getDimensionArreglo();
+
+        tablaSimbolos.agregarVariable(prefijo + "array", new Simbolo(TipoDato.ARRAY, n));
+        tablaSimbolos.agregarVariable(prefijo + "indice_externo", new Simbolo(TipoDato.INT, 0));
+        tablaSimbolos.agregarVariable(prefijo + "indice_interno", new Simbolo(TipoDato.INT, 0));
+        tablaSimbolos.agregarVariable(prefijo + "frecuencia_actual", new Simbolo(TipoDato.INT, 0));
+        tablaSimbolos.agregarVariable(prefijo + "frecuencia_maxima", new Simbolo(TipoDato.INT, 0));
+        tablaSimbolos.agregarVariable(prefijo + "valor_resultado", new Simbolo(TipoDato.FLOAT, 0));
+
+        List<Identificador> listaInt = new ArrayList<>();
+        listaInt.add(indiceExterno(prefijo));
+        listaInt.add(indiceInterno(prefijo));
+        listaInt.add(frecuenciaActual(prefijo));
+        listaInt.add(frecuenciaMaxima(prefijo));
+        declaracionesPrograma.add(new Declaracion(new Simbolo(TipoDato.INT, 0), listaInt));
+
+        List<Identificador> listaFloat = new ArrayList<>();
+        listaFloat.add(valorModa(prefijo));
+        declaracionesPrograma.add(new Declaracion(new Simbolo(TipoDato.FLOAT, 0), listaFloat));
+
+        List<Identificador> listaArray = new ArrayList<>();
+        listaArray.add(array(prefijo, n));
+        declaracionesPrograma.add(new Declaracion(new Simbolo(TipoDato.ARRAY, n), listaArray));
+
         List<Sentencia> algoritmo = new ArrayList<>();
-        
-        // Inicialización de las variables
-        algoritmo.add(new Asignacion(idArray(n), arregloEntrada));
+        algoritmo.add(new Asignacion(array(prefijo, n), arregloEntrada));
 
         List<Sentencia> cuerpoVacio = new ArrayList<>();
         tablaSimbolos.agregarString("La lista esta vacia.\\n");
         cuerpoVacio.add(new Print(new Constante("La lista esta vacia.\\n", TipoDato.STRING, 0)));
-        cuerpoVacio.add(new Asignacion(idValorModa(), new Constante("-1.0", TipoDato.FLOAT, 0)));
+        cuerpoVacio.add(new Asignacion(valorModa(prefijo), new Constante("-1.0", TipoDato.FLOAT, 0)));
 
         List<Sentencia> cuerpoNormal = new ArrayList<>();
-        cuerpoNormal.add(new Asignacion(idFrecuenciaMaxima(), constanteCero()));
-        cuerpoNormal.add(new Asignacion(idIndiceExterno(), constanteCero()));
-        cuerpoNormal.add(new Asignacion(idValorModa(), new AccesoArreglo(idArray(n), constanteCero())));
+        cuerpoNormal.add(new Asignacion(frecuenciaMaxima(prefijo), constanteCero()));
+        cuerpoNormal.add(new Asignacion(indiceExterno(prefijo), constanteCero()));
+        cuerpoNormal.add(new Asignacion(valorModa(prefijo), new AccesoArreglo(array(prefijo, n), constanteCero())));
         
         // --- BUCLE INTERNO ---
-        AccesoArreglo elementoExterno = new AccesoArreglo(idArray(n), idIndiceExterno());
-        AccesoArreglo elementoInterno = new AccesoArreglo(idArray(n), idIndiceInterno());
+        AccesoArreglo elementoExterno = new AccesoArreglo(array(prefijo, n), indiceExterno(prefijo));
+        AccesoArreglo elementoInterno = new AccesoArreglo(array(prefijo, n), indiceInterno(prefijo));
         
         List<Sentencia> cuerpoIfIguales = new ArrayList<>();
-        Suma incrementoFrecuencia = new Suma(TipoDato.INT, idFrecuenciaActual(), constanteUno());
+        Suma incrementoFrecuencia = new Suma(TipoDato.INT, frecuenciaActual(prefijo), constanteUno());
         incrementoFrecuencia.setDimensionArreglo(0);
-        cuerpoIfIguales.add(new Asignacion(idFrecuenciaActual(), incrementoFrecuencia));
+        cuerpoIfIguales.add(new Asignacion(frecuenciaActual(prefijo), incrementoFrecuencia));
         If ifElementosIguales = new If(new Igual(elementoExterno, elementoInterno), cuerpoIfIguales, new ArrayList<Sentencia>());
         
         List<Sentencia> cuerpoBucleInterno = new ArrayList<>();
         cuerpoBucleInterno.add(ifElementosIguales);
-        Suma incrementoIndiceInterno = new Suma(TipoDato.INT, idIndiceInterno(), constanteUno());
+        Suma incrementoIndiceInterno = new Suma(TipoDato.INT, indiceInterno(prefijo), constanteUno());
         incrementoIndiceInterno.setDimensionArreglo(0);
-        cuerpoBucleInterno.add(new Asignacion(idIndiceInterno(), incrementoIndiceInterno));
-        While bucleInterno = new While(new Clausula("BLOQUE_BUCLE_INTERNO", new Menor(idIndiceInterno(), constanteN(n)), cuerpoBucleInterno), new ArrayList<Clausula>());
+        cuerpoBucleInterno.add(new Asignacion(indiceInterno(prefijo), incrementoIndiceInterno));
+        While bucleInterno = new While(new Clausula("BLOQUE_BUCLE_INTERNO", new Menor(indiceInterno(prefijo), constanteN(n)), cuerpoBucleInterno), new ArrayList<Clausula>());
         
         // --- BUCLE EXTERNO ---
         List<Sentencia> cuerpoIfNuevaModa = new ArrayList<>();
-        cuerpoIfNuevaModa.add(new Asignacion(idFrecuenciaMaxima(), idFrecuenciaActual()));
-        cuerpoIfNuevaModa.add(new Asignacion(idValorModa(), new AccesoArreglo(idArray(n), idIndiceExterno())));
-        If ifNuevaModa = new If(new Mayor(idFrecuenciaActual(), idFrecuenciaMaxima()), cuerpoIfNuevaModa, new ArrayList<Sentencia>());
+        cuerpoIfNuevaModa.add(new Asignacion(frecuenciaMaxima(prefijo), frecuenciaActual(prefijo)));
+        cuerpoIfNuevaModa.add(new Asignacion(valorModa(prefijo), new AccesoArreglo(array(prefijo, n), indiceExterno(prefijo))));
+        If ifNuevaModa = new If(new Mayor(frecuenciaActual(prefijo), frecuenciaMaxima(prefijo)), cuerpoIfNuevaModa, new ArrayList<Sentencia>());
         
         List<Sentencia> cuerpoBucleExterno = new ArrayList<>();
-        cuerpoBucleExterno.add(new Asignacion(idIndiceInterno(), constanteCero()));
-        cuerpoBucleExterno.add(new Asignacion(idFrecuenciaActual(), constanteCero()));
+        cuerpoBucleExterno.add(new Asignacion(indiceInterno(prefijo), constanteCero()));
+        cuerpoBucleExterno.add(new Asignacion(frecuenciaActual(prefijo), constanteCero()));
         cuerpoBucleExterno.add(bucleInterno);
         cuerpoBucleExterno.add(ifNuevaModa);
-        Suma incrementoIndiceExterno = new Suma(TipoDato.INT, idIndiceExterno(), constanteUno());
+        Suma incrementoIndiceExterno = new Suma(TipoDato.INT, indiceExterno(prefijo), constanteUno());
         incrementoIndiceExterno.setDimensionArreglo(0);
-        cuerpoBucleExterno.add(new Asignacion(idIndiceExterno(), incrementoIndiceExterno));
-        While bucleExterno = new While(new Clausula("BLOQUE_BUCLE_EXTERNO", new Menor(idIndiceExterno(), constanteN(n)), cuerpoBucleExterno), new ArrayList<Clausula>());
+        cuerpoBucleExterno.add(new Asignacion(indiceExterno(prefijo), incrementoIndiceExterno));
+        While bucleExterno = new While(new Clausula("BLOQUE_BUCLE_EXTERNO", new Menor(indiceExterno(prefijo), constanteN(n)), cuerpoBucleExterno), new ArrayList<Clausula>());
         
         cuerpoNormal.add(bucleExterno);
 
@@ -137,7 +163,7 @@ parser code {:
         algoritmo.add(comprobacionArregloVacio);
         
         // Retornar paquete final
-        return new Moda(algoritmo, idValorModa(), n);
+        return new Moda(algoritmo, valorModa(prefijo), n);
     }
 :}
 
@@ -211,9 +237,11 @@ programa ::= zona_declaraciones:zd bloque_programa:bp {:
 
 zona_declaraciones ::= lista_declaraciones:lista {:
             System.out.println("[PARSER] REGLA: zona_declaraciones -> lista_declaraciones");
+            parser.declaracionesPrograma = lista;
             RESULT = lista;
         :} | /* Vacío */ {:
-            RESULT = new ArrayList<Declaracion>();
+            parser.declaracionesPrograma = new ArrayList<Declaracion>();
+            RESULT = parser.declaracionesPrograma;
         :} ;
 
 lista_declaraciones ::= lista_declaraciones:lista declaracion:d {:
@@ -230,6 +258,8 @@ declaracion ::= tipo:t DOS_PUNTOS lista_variables:l {:
             
             for (Identificador id : l) {
                 parser.tablaSimbolos.agregarVariable(id.getNombre(), t);
+                id.setTipoDato(t.getTipoDato());
+                id.setDimensionArreglo(t.getDimensionArreglo());
             }
 
             RESULT = new Declaracion(t, l);

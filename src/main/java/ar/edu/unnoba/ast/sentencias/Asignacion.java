@@ -125,7 +125,7 @@ public class Asignacion extends Sentencia {
 
     private String asignarArregloEscalar(GeneradorCodigo generadorCodigo) {
         StringBuilder codigo = new StringBuilder();
-        codigo.append("  ; --- Asignación de Escalar a Arreglo ---\n");
+        codigo.append("  ; --- Asignacion de Escalar a Arreglo ---\n");
         
         codigo.append(this.valor.generarCodigo(generadorCodigo));
         String referenciaValor = this.valor.getIrReferencia();
